@@ -1,0 +1,20 @@
+---
+label: 'Webhooks'
+related:
+  - bunny_stream.overview
+---
+{% set config_link_text %}
+{% trans %}module configuration{% endtrans %}
+{% endset %}
+{% set config_link = render_var(help_route_link(config_link_text, 'entity.bunny_stream_library.collection')) %}
+<h2>{% trans %}Goal{% endtrans %}</h2>
+<p>{% trans %}Configure Webhook.{% endtrans %}</p>
+<h2>{% trans %}What is bunny webhook?{% endtrans %}</h2>
+<p>{% trans %}Bunny provides the functionality for webhooks to provide information about video status: <a href="https://docs.bunny.net/docs/stream-webhook">Webhooks documentation</a>.{% endtrans %}</p>
+<h2>{% trans %}Steps{% endtrans %}</h2>
+<ol>
+  <li>{% trans %}Go to {{ config_link }}.{% endtrans %}</li>
+  <li>{% trans %}Set one random string for security. That string will be used in the webhook endpoint, for example, if you set the string "1234asdf" your endpoint will be "example.com//bunny-stream/webhook/1234asdf"{% endtrans %}</li>
+  <li>{% trans %}In Bunny dashboard go to Stream -> Your Library -> API.{% endtrans %}</li>
+  <li>{% trans %}Put the endpoint of your webhook in "Webhook URL"{% endtrans %}</li>
+</ol>

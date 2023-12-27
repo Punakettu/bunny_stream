@@ -1,0 +1,8 @@
+name: Bunny Stream
+type: module
+description: 'Media integration with the Bunny.net Stream service.'
+package: Media
+core_version_requirement: ^10
+configure: bunny_stream.bunny_stream_settings
+dependencies:
+  - 'drupal:media'

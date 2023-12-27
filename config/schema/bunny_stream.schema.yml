@@ -1,0 +1,70 @@
+bunny_stream.bunny_stream_library.*:
+  type: config_entity
+  label: Bunny Stream Library
+  mapping:
+    id:
+      type: machine_name
+      label: Library ID
+    label:
+      type: label
+      label: Label
+    description:
+      type: text
+      label: 'Description'
+    api_key:
+      type: string
+      label: Api Key
+      constraints:
+        Uuid:
+          versions: 4
+    cdn_hostname:
+      type: string
+      label: CDN Hostname
+      constraints:
+        NotBlank: []
+    pull_zone:
+      type: label
+      label: Pull Zone
+    token_authentication_key:
+      type: string
+      label: Token Authentication Key
+      constraints:
+        Uuid:
+          versions: 4
+    time:
+      type: integer
+      label: Time
+      constraints:
+        PrimitiveType: []
+
+field.formatter.settings.bunny_stream_embed:
+  type: mapping
+  label: Bunny Stream formatter settings
+  mapping:
+    responsive:
+      type: bool
+      label: Responsive
+    autoplay:
+      type: bool
+      label: Autoplay
+    preload:
+      type: bool
+      label: Preload
+    loop:
+      type: bool
+      label: Loop
+    muted:
+      type: bool
+      label: Muted
+    allowfullscreen:
+      type: bool
+      label: Allow fullscreen
+
+# Schema for the configuration files of the Bunny Stream module.
+bunny_stream.settings:
+  type: config_object
+  label: 'Bunny Stream settings'
+  mapping:
+    example:
+      type: string
+      label: 'Example'

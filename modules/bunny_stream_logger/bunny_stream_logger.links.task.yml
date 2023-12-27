@@ -1,0 +1,4 @@
+bunny_stream_logger.logger_settings:
+  title: 'Logger'
+  route_name: bunny_stream_logger.logger_settings
+  base_route: bunny_stream.bunny_stream_settings

@@ -1,0 +1,50 @@
+bunny_stream.bunny_stream_settings:
+  path: '/admin/config/services/bunny-stream'
+  defaults:
+    _title: 'Bunny stream settings'
+    _form: 'Drupal\bunny_stream\Form\BunnyStreamSettingsForm'
+  requirements:
+    _permission: 'administer bunny_stream_library'
+
+entity.bunny_stream_library.collection:
+  path: '/admin/config/services/bunny-stream/library'
+  defaults:
+    _entity_list: 'bunny_stream_library'
+    _title: 'Bunny stream library configuration'
+  requirements:
+    _permission: 'administer bunny_stream_library'
+
+entity.bunny_stream_library.add_form:
+  path: '/admin/config/services/bunny-stream/library/add'
+  defaults:
+    _entity_form: 'bunny_stream_library.add'
+    _title: 'Add a Bunny stream library'
+  requirements:
+    _permission: 'administer bunny_stream_library'
+
+entity.bunny_stream_library.edit_form:
+  path: '/admin/config/services/bunny-stream/library/{bunny_stream_library}'
+  defaults:
+    _entity_form: 'bunny_stream_library.edit'
+    _title: 'Edit a Bunny stream library'
+  requirements:
+    _permission: 'administer bunny_stream_library'
+
+entity.bunny_stream_library.delete_form:
+  path: '/admin/config/services/bunny-stream/library/{bunny_stream_library}/delete'
+  defaults:
+    _entity_form: 'bunny_stream_library.delete'
+    _title: 'Delete a Bunny stream library'
+  requirements:
+    _permission: 'administer bunny_stream_library'
+
+bunny_stream.webhook:
+  path: '/bunny-stream/webhook/{hash}'
+  defaults:
+    _controller: '\Drupal\bunny_stream\Controller\WebhookController::webhook'
+  methods: ['POST']
+  requirements:
+    #This endpoint is for webhooks of bunny secured with hash.
+    _access: 'TRUE'
+  options:
+    no_cache: TRUE

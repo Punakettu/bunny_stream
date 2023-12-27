@@ -1,0 +1,34 @@
+<?php
+
+/**
+ * @file
+ * Hooks of the module.
+ */
+
+/**
+ * Implements hook_cron().
+ */
+function bunny_stream_logger_cron(): void {
+  // Cleanup the watchdog table.
+  $row_limit = \Drupal::config('bunny_stream_logger.settings')->get('row_limit');
+
+  // For row limit n, get the wid of the nth row in descending wid order.
+  // Counting the most recent n rows avoids issues with wid number sequences,
+  // e.g. auto_increment value > 1 or rows deleted directly from the table.
+  if ($row_limit > 0) {
+    $connection = \Drupal::database();
+    $min_row = $connection->select('bunny_stream_logger', 'b')
+      ->fields('b', ['bid'])
+      ->orderBy('bid', 'DESC')
+      ->range($row_limit - 1, 1)
+      ->execute()
+      ->fetchField();
+
+    // Delete all table entries older than the nth row, if nth row was found.
+    if ($min_row) {
+      $connection->delete('bunny_stream_logger')
+        ->condition('bid', $min_row, '<')
+        ->execute();
+    }
+  }
+}

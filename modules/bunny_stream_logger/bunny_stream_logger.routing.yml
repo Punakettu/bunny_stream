@@ -1,0 +1,14 @@
+bunny_stream_logger.logger_settings:
+  path: '/admin/config/services/bunny-stream/logger'
+  defaults:
+    _title: 'Logger'
+    _form: 'Drupal\bunny_stream_logger\Form\LoggerSettingsForm'
+  requirements:
+    _permission: 'administer site configuration'
+bunny_stream_logger.overview:
+  path: '/admin/reports/bunny-logger'
+  defaults:
+    _controller: '\Drupal\bunny_stream_logger\Controller\BunnyLogController::overview'
+    _title: 'Recent log messages'
+  requirements:
+    _permission: 'access site reports'

@@ -1,0 +1,25 @@
+---
+label: 'Private videos'
+related:
+  - bunny_stream.overview
+  - bunny_stream.config
+---
+{% set layout_link_text %}
+{% trans %}Bunny library{% endtrans %}
+{% endset %}
+{% set layout_link = render_var(help_route_link(layout_link_text, 'entity.bunny_stream_library.collection')) %}
+<h2>{% trans %}Goal{% endtrans %}</h2>
+<p>{% trans %}Embed private videos in Drupal. {% endtrans %}</p>
+<h2>{% trans %}Private videos{% endtrans %}</h2>
+<p>{% trans %}By default all the videos in Bunny are public, but you can create a private library and all the videos of that library will be private. Let's learn to embed private videos in Drupal.{% endtrans %}</p>
+<h2>{% trans %}Notice{% endtrans %}</h2>
+<p>{% trans %}Before follow this steps, please, configure library in Drupal and in Media following configuration steps: {{ configure_topic }}{% endtrans %}</p>
+<h2>{% trans %}Steps{% endtrans %}</h2>
+<ol>
+  <li>{% trans %}In your Bunny dashboard go to Stream -> Your Library -> Security.{% endtrans %}</li>
+  <li>{% trans %}In that page check "Block Direct Url File Access" and "Embed View Token Authentication" options.{% endtrans %}</li>
+  <li>{% trans %}Copy the value of "Token Authentication Key".{% endtrans %}</li>
+  <li>{% trans %}Go to {{ layout_link }} and edit your library, add the token to "Token Authentication Key" field.{% endtrans %}</li>
+  <li>{% trans %}Optionally configure expiration time of the video, this field is to configure the expiration time of the generated token for private videos, by default is 12 hours.{% endtrans %}</li>
+  <li>{% trans %}Save the library and nothing else, Drupal will display private videos, don't forget that is mandatory to embed private videos.{% endtrans %}</li>
+</ol>

@@ -1,0 +1,26 @@
+---
+label: 'Configuring the module'
+related:
+  - bunny_stream.overview
+  - bunny_stream.private_videos
+---
+{% set layout_link_text %}
+{% trans %}Bunny library{% endtrans %}
+{% endset %}
+{% set layout_link = render_var(help_route_link(layout_link_text, 'entity.bunny_stream_library.collection')) %}
+{% set media_link_text %}
+  {% trans %}Media types{% endtrans %}
+{% endset %}
+{% set media_link = render_var(help_route_link(media_link_text, 'entity.media_type.collection')) %}
+{% set configure_topic = render_var(help_topic_link('bunny_stream.private_videos')) %}
+<h2>{% trans %}Goal{% endtrans %}</h2>
+<p>{% trans %}Configure Drupal to embed videos from Bunny.net.{% endtrans %}</p>
+<h2>{% trans %}Steps{% endtrans %}</h2>
+<ol>
+  <li>{% trans %}Register in <a href="https://bunny.net/">Bunny</a> and in your Dashboard create new library in Stream -> Add New Library.{% endtrans %}</li>
+  <li>{% trans %}Upload some videos to check if all works after configure (Bunny needs some minutes to process the videos).{% endtrans %}</li>
+  <li>{% trans %}Now go to "API" configuration of the library and copy the values of "Library ID" and "API Key".{% endtrans %}</li>
+  <li>{% trans %}With that values you can create new Library configuration in Drupal. Go to {{ layout_link }} and create the new library.{% endtrans %}</li>
+  <li>{% trans %}With the library configured in Drupal, go to {{ media_link }} page and create one selecting "Bunny Stream" like "Media Source".{% endtrans %}</li>
+  <li>{% trans %}Now you can create new Media types with the UUID of the videos from bunny.net, to find the UUID of a video, go to Stream -> Your Library -> Manage Library -> Select video -> Video ID.{% endtrans %}</li>
+</ol>

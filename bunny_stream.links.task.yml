@@ -1,0 +1,9 @@
+bunny_stream.bunny_stream_settings:
+  title: 'Configuration'
+  route_name: bunny_stream.bunny_stream_settings
+  base_route: bunny_stream.bunny_stream_settings
+
+entity.bunny_stream_library.collection:
+  title: 'Libraries'
+  route_name: entity.bunny_stream_library.collection
+  base_route: bunny_stream.bunny_stream_settings

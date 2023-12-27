@@ -1,0 +1,4 @@
+services:
+  bunny_stream.manager:
+    class: Drupal\bunny_stream\BunnyStreamManagerFactory
+    arguments: [ '@entity_type.manager', '@http_client' ]

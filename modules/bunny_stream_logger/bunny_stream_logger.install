@@ -1,0 +1,56 @@
+<?php
+
+/**
+ * @file
+ * Hooks for install and uninstall.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function bunny_stream_logger_schema(): array {
+  $schema['bunny_stream_logger'] = [
+    'description' => 'Table that contains logs of all bunny stream webhooks.',
+    'fields' => [
+      'bid' => [
+        'type' => 'serial',
+        'not null' => TRUE,
+        'size' => 'big',
+        'description' => 'Primary Key: Unique bunny event ID.',
+      ],
+      'status' => [
+        'type' => 'int',
+        'length' => 64,
+        'not null' => TRUE,
+        'description' => 'Status returned by the Webhook of Bunny.net Stream.',
+      ],
+      'library' => [
+        'type' => 'int',
+        'length' => 64,
+        'not null' => TRUE,
+        'description' => 'Library ID where the action happended.',
+      ],
+      'video' => [
+        'type' => 'varchar_ascii',
+        'length' => 64,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => 'Video ID.',
+      ],
+      'timestamp' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Unix timestamp of when event occurred.',
+        'size' => 'big',
+      ],
+    ],
+    'primary key' => ['bid'],
+    'indexes' => [
+      'status' => ['status'],
+      'library' => ['library'],
+    ],
+  ];
+
+  return $schema;
+}

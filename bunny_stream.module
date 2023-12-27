@@ -1,0 +1,32 @@
+<?php
+
+/**
+ * @file
+ * Hooks of the module.
+ */
+
+use Drupal\bunny_stream\Form\BunnyStreamMediaLibraryForm;
+
+/**
+ * Implements hook_theme().
+ */
+function bunny_stream_theme(array $existing, string $type, string $theme, string $path): array {
+
+  return [
+    'bunny_embed' => [
+      'variables' => [
+        'url' => NULL,
+        'options' => [],
+      ],
+    ],
+  ];
+}
+
+/**
+ * Implements hook_media_source_info_alter().
+ */
+function bunny_stream_media_source_info_alter(array &$sources): void {
+  if (empty($sources['bunny_stream']['forms']['media_library_add'])) {
+    $sources['bunny_stream']['forms']['media_library_add'] = BunnyStreamMediaLibraryForm::class;
+  }
+}

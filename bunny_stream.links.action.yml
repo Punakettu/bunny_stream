@@ -1,0 +1,5 @@
+entity.bunny_stream_library.add_form:
+  route_name: 'entity.bunny_stream_library.add_form'
+  title: 'Add Bunny stream library'
+  appears_on:
+    - entity.bunny_stream_library.collection

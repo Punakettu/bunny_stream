@@ -1,0 +1,11 @@
+bunny_stream_logger.logger_settings:
+  title: Logger settings
+  parent: bunny_stream.bunny_stream_settings
+  route_name: bunny_stream_logger.logger_settings
+  weight: 10
+bunny_stream_logger.overview:
+  title: 'Recent bunny messages'
+  parent: system.admin_reports
+  description: 'View events that have recently been logged.'
+  route_name: bunny_stream_logger.overview
+  weight: -1

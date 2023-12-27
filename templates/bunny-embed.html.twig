@@ -1,0 +1,16 @@
+{#
+/**
+ * @file
+ * Template to render iframe for bunny stream embebed video.
+ *
+ * Available variables:
+ * - url: The URL of the video, with all the options.
+ * - options: Array with different configuration options.
+ *   - allowfullscreen: boolean to allow full screen on the video.
+#}
+<div style="position: relative; padding-top: 56.25%;">
+  <iframe src="{{ url }}"
+          loading="lazy" style="border: none; position: absolute; top: 0; height: 100%; width: 100%;"
+          allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" {% if options.allow_fullscreen %}allowfullscreen="true"{% endif %}>
+  </iframe>
+</div>

@@ -1,0 +1,6 @@
+services:
+  bunny_stream_logger.event_subscriber:
+    class: Drupal\bunny_stream_logger\EventSubscriber\BunnyStreamLoggerSubscriber
+    arguments: ['@database']
+    tags:
+      - { name: event_subscriber }
