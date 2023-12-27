@@ -200,27 +200,14 @@ class BunnyStreamEmbedFormatter extends FormatterBase {
       );
 
       $url = Url::fromUri($video_url);
-
-      $settings = [];
-      if ($this->getSetting('responsive')) {
-        $settings['responsive'] = 'true';
-      }
-
-      if ($this->getSetting('autoplay')) {
-        $settings['autoplay'] = 'true';
-      }
-
-      if ($this->getSetting('loop')) {
-        $settings['loop'] = 'true';
-      }
-
-      if ($this->getSetting('muted')) {
-        $settings['muted'] = 'true';
-      }
-
-      if ($this->getSetting('preload')) {
-        $settings['preload'] = 'true';
-      }
+      
+      $settings = [
+        'responsive' => $this->getSetting('responsive') ? 'true' : 'false',
+        'autoplay' => $this->getSetting('autoplay') ? 'true' : 'false',
+        'loop' => $this->getSetting('loop') ? 'true' : 'false',
+        'muted' => $this->getSetting('muted') ? 'true' : 'false',
+        'preload' => $this->getSetting('preload') ? 'true' : 'false',
+      ];
 
       $token_auth = $library->get('token_authentication_key');
 
