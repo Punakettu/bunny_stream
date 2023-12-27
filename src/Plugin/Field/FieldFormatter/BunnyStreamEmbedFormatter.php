@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Drupal\bunny_stream\Plugin\Field\FieldFormatter;
 
@@ -48,13 +48,14 @@ class BunnyStreamEmbedFormatter extends FormatterBase {
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   The entity_type.manager service.
    */
-  public function __construct($plugin_id,
-  $plugin_definition,
-  FieldDefinitionInterface $field_definition,
-  array $settings,
-  $label,
-  $view_mode,
-  array $third_party_settings,
+  public function __construct(
+    $plugin_id,
+    $plugin_definition,
+    FieldDefinitionInterface $field_definition,
+    array $settings,
+    $label,
+    $view_mode,
+    array $third_party_settings,
     protected EntityTypeManagerInterface $entityTypeManager
   ) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
@@ -200,7 +201,7 @@ class BunnyStreamEmbedFormatter extends FormatterBase {
       );
 
       $url = Url::fromUri($video_url);
-      
+
       $settings = [
         'responsive' => $this->getSetting('responsive') ? 'true' : 'false',
         'autoplay' => $this->getSetting('autoplay') ? 'true' : 'false',
@@ -212,21 +213,19 @@ class BunnyStreamEmbedFormatter extends FormatterBase {
       $token_auth = $library->get('token_authentication_key');
 
       if (!empty($token_auth)) {
-        $time = time() + $library->get('time');
-        $security_token = hash("sha256", $token_auth . $video_id . $time);
-
-        $settings['token'] = $security_token;
-        $settings['expires'] = $time;
 
         $url->setOptions(['query' => $settings]);
 
-        // We can't cache videos with expiration time, so let's use BigPipe
+        // We can't cache videos with expiration time, so let's use lazy_builder
         // to avoid cache.
         $render = [
           '#lazy_builder' => [
             '\Drupal\bunny_stream\LazyEmbedLoader::lazyLoad',
             [
               $url->toString(),
+              $library->get('time'),
+              $video_id,
+              $token_auth,
               $this->getSetting('allow_fullscreen'),
             ],
           ],
@@ -237,8 +236,7 @@ class BunnyStreamEmbedFormatter extends FormatterBase {
             '#markup' => 'Loading video...',
           ],
         ];
-      }
-      else {
+      } else {
         $render = [
           '#theme' => "bunny_embed",
           '#url' => $url->toString(),
@@ -262,5 +260,4 @@ class BunnyStreamEmbedFormatter extends FormatterBase {
     }
     return MediaType::load($target_bundle)->getSource() instanceof BunnyStreamSourceInterface;
   }
-
 }
