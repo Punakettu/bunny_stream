@@ -114,23 +114,6 @@ final class BunnyStreamLibraryForm extends EntityForm {
       '#description' => $this->t('This is used to generate a token hash, to use this, you must enable the option "Embed View Token Authentication" inside Stream -> Library -> Security. If this field has some value, the module will assume that this library is private.'),
     ];
 
-    $options = [3600, 10800, 21600, 43200, 86400, 604800];
-    $form['time'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Expiration time'),
-      '#description' => $this->t('Chose the time to expire the video, this value will be used only if token authentication is enabled.'),
-      '#default_value' => $this->entity->get('time') ?? 43200,
-      '#options' => array_map([$this->dateFormatter, 'formatInterval'], array_combine($options, $options)),
-      '#states' => [
-        'visible' => [
-          ':input[name="token_authentication_key"]' => ['filled' => TRUE],
-        ],
-        'required' => [
-          ':input[name="token_authentication_key"]' => ['filled' => TRUE],
-        ],
-      ],
-    ];
-
     return $form;
   }
 

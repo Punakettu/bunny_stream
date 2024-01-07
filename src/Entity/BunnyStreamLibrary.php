@@ -90,9 +90,4 @@ final class BunnyStreamLibrary extends ConfigEntityBase implements BunnyStreamLi
    */
   protected string $token_authentication_key;
 
-  /**
-   * The time in seconds to expire private videos.
-   */
-  protected int $time;
-
 }

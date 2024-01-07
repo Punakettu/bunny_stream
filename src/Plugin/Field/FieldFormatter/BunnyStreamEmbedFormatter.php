@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\bunny_stream\Plugin\Field\FieldFormatter;
 
 use Drupal\bunny_stream\BunnyStreamSourceInterface;
+use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
@@ -47,6 +48,8 @@ class BunnyStreamEmbedFormatter extends FormatterBase {
    *   Any third party settings.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   The entity_type.manager service.
+   * @param \Drupal\Core\Datetime\DateFormatterInterface $dateFormatter
+   * The date.formatter service.
    */
   public function __construct(
     $plugin_id,
@@ -56,7 +59,8 @@ class BunnyStreamEmbedFormatter extends FormatterBase {
     $label,
     $view_mode,
     array $third_party_settings,
-    protected EntityTypeManagerInterface $entityTypeManager
+    protected EntityTypeManagerInterface $entityTypeManager,
+    protected DateFormatterInterface $dateFormatter
   ) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
   }
@@ -73,7 +77,8 @@ class BunnyStreamEmbedFormatter extends FormatterBase {
       $configuration['label'],
       $configuration['view_mode'],
       $configuration['third_party_settings'],
-      $container->get('entity_type.manager')
+      $container->get('entity_type.manager'),
+      $container->get('date.formatter')
     );
   }
 
@@ -88,6 +93,7 @@ class BunnyStreamEmbedFormatter extends FormatterBase {
       'loop' => 0,
       'muted' => 0,
       'allow_fullscreen' => 1,
+      'time' => 21600,
     ] + parent::defaultSettings();
   }
 
@@ -139,6 +145,15 @@ class BunnyStreamEmbedFormatter extends FormatterBase {
       '#description' => $this->t('Allow video to be fullscreen.'),
     ];
 
+    $options = [3600, 10800, 21600, 43200, 86400, 604800];
+    $form['time'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Expiration time'),
+      '#description' => $this->t('Chose the time to expire the video, this value will be used only if token authentication is set on library configuration.'),
+      '#default_value' => $this->getSetting('time') ?? 43200,
+      '#options' => array_map([$this->dateFormatter, 'formatInterval'], array_combine($options, $options)),
+    ];
+
     return $form;
   }
 
@@ -170,6 +185,10 @@ class BunnyStreamEmbedFormatter extends FormatterBase {
 
     $summary[] = $this->t('Allow fullscreen: @enabled', [
       '@enabled' => $this->getSetting('allow_fullscreen') ? $this->t('Enabled') : $this->t('Disabled'),
+    ]);
+
+    $summary[] = $this->t('Expiration time: @time', [
+      '@time' => $this->dateFormatter->formatInterval($this->getSetting('time')),
     ]);
 
     return $summary;
@@ -223,7 +242,7 @@ class BunnyStreamEmbedFormatter extends FormatterBase {
             '\Drupal\bunny_stream\LazyEmbedLoader::lazyLoad',
             [
               $url->toString(),
-              $library->get('time'),
+              $this->getSetting('time'),
               $video_id,
               $token_auth,
               $this->getSetting('allow_fullscreen'),
