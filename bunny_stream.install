@@ -12,7 +12,7 @@ use Drupal\Core\File\FileSystemInterface;
  */
 function bunny_stream_install($is_syncing): void {
 
-  $path = \Drupal::service('extension.list.module')->getPath('bunny_stream') . '/images/icon/bunny.png';
+  $path = \Drupal::service('extension.list.module')->getPath('bunny_stream') . '/images/icon/no-thumbnail.png';
 
   /** @var \Drupal\Core\File\FileSystemInterface $fileSystem */
   $fileSystem = \Drupal::service('file_system');
