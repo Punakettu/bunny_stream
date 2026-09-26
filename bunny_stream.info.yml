@@ -3,6 +3,6 @@ type: module
 description: 'Media integration with the Bunny.net Stream service.'
 package: Media
 core_version_requirement: ^11.1
-configure: bunny_stream.bunny_stream_settings
+configure: entity.bunny_stream_library.collection
 dependencies:
   - 'drupal:media'

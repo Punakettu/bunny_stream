@@ -31,6 +31,13 @@ bunny_stream.bunny_stream_library.*:
       constraints:
         Uuid:
           versions: 4
+    read_only_api_key:
+      type: string
+      label: Read-only API key
+      nullable: true
+      constraints:
+        Uuid:
+          versions: 4
 
 field.formatter.settings.bunny_stream_embed:
   type: mapping
@@ -68,12 +75,3 @@ media.source.bunny_stream:
     library:
       type: string
       label: 'Bunny Stream library ID'
-
-# Schema for the configuration files of the Bunny Stream module.
-bunny_stream.settings:
-  type: config_object
-  label: 'Bunny Stream settings'
-  mapping:
-    webhook_hash:
-      type: string
-      label: 'Webhook hash'

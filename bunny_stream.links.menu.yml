@@ -1,12 +1,6 @@
-bunny_stream.bunny_stream_settings:
-  title: Bunny stream settings
+entity.bunny_stream_library.collection:
+  title: Bunny stream
   parent: system.admin_config_services
-  route_name: bunny_stream.bunny_stream_settings
+  route_name: entity.bunny_stream_library.collection
   description: 'Configuration for Bunny.net stream service.'
   weight: 10
-
-entity.bunny_stream_library.overview:
-  title: Bunny stream libraries
-  parent: bunny_stream.bunny_stream_settings
-  description: 'List of Bunny stream libraries to extend site functionality.'
-  route_name: entity.bunny_stream_library.collection

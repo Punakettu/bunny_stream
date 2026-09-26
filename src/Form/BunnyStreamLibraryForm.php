@@ -8,6 +8,7 @@ use Drupal\bunny_stream\BunnyStreamLibraryInterface;
 use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Url;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 
@@ -79,6 +80,22 @@ final class BunnyStreamLibraryForm extends EntityForm {
       '#default_value' => $this->entity->get('api_key'),
       '#required' => TRUE,
       '#description' => $this->t('The API key for the request to Bunny API. You can get it from Stream -> Library -> API.'),
+    ];
+
+    $form['read_only_api_key'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Read-only API key'),
+      '#maxlength' => 255,
+      '#default_value' => $this->entity->get('read_only_api_key'),
+      '#required' => TRUE,
+      '#description' => $this->t('Bunny signs webhook requests with this key. You can get it from Stream -> Library -> API.'),
+    ];
+
+    $form['webhook_url'] = [
+      '#type' => 'item',
+      '#title' => $this->t('Webhook URL'),
+      '#markup' => Url::fromRoute('bunny_stream.webhook', [], ['absolute' => TRUE])->toString(),
+      '#description' => $this->t('Set this as the "Webhook URL" in Stream -> Library -> API.'),
     ];
 
     $form['pull_zone'] = [

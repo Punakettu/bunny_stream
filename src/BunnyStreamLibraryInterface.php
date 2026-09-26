@@ -11,4 +11,11 @@ use Drupal\Core\Config\Entity\ConfigEntityInterface;
  */
 interface BunnyStreamLibraryInterface extends ConfigEntityInterface {
 
+  /**
+   * Verifies that payload is signed for this library.
+   *
+   * @see https://bunny.net/docs/stream/webhooks#signature-validation
+   */
+  public function validateSignature(string $signature, string $version, string $algorithm, string $content): bool;
+
 }

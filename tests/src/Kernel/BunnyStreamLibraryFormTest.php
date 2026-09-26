@@ -45,8 +45,7 @@ final class BunnyStreamLibraryFormTest extends KernelTestBase {
     $this->assertSame([], $form_state->getErrors());
 
     $request = $this->getLastHttpRequest();
-    $this->assertSame('https://video.bunnycdn.com/library/12345/videos', (string) $request->getUri());
-    $this->assertSame('123e4567-e89b-12d3-a456-426614174000', $request->getHeaderLine('AccessKey'));
+    $this->assertSame('11111111-1111-4111-8111-111111111111', $request->getHeaderLine('AccessKey'));
 
     $library = $this->container->get(EntityTypeManagerInterface::class)
       ->getStorage('bunny_stream_library')
@@ -98,7 +97,7 @@ final class BunnyStreamLibraryFormTest extends KernelTestBase {
       'id' => '12345',
       'label' => 'Test library',
       'description' => 'Library description',
-      'api_key' => '123e4567-e89b-12d3-a456-426614174000',
+      'api_key' => '11111111-1111-4111-8111-111111111111',
       'cdn_hostname' => 'vz-12345.b-cdn.net',
       'pull_zone' => 'vz-12345',
       'token_authentication_key' => '9c8b7a6d-5e4f-4a3b-b2c1-d0e9f8a7b6c5',

@@ -2,12 +2,14 @@
 
 namespace Drupal\bunny_stream\Controller;
 
+use Drupal\bunny_stream\BunnyStreamLibraryInterface;
 use Drupal\bunny_stream\Event\WebhookEvent;
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Access\AccessResultInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
  * Controller for the webhook.
@@ -25,23 +27,36 @@ class WebhookController extends ControllerBase {
   ) {}
 
   /**
+   * Checks the webhook signature.
+   */
+  public function access(Request $request): AccessResultInterface {
+    $payload = $request->getPayload();
+
+    $library_id = $payload->get('VideoLibraryId');
+    $signature = $request->headers->get('X-BunnyStream-Signature');
+    $version = $request->headers->get('X-BunnyStream-Signature-Version');
+    $algorithm = $request->headers->get('X-BunnyStream-Signature-Algorithm');
+
+    $library = is_scalar($library_id)
+      ? $this->entityTypeManager()->getStorage('bunny_stream_library')->load((string) $library_id)
+      : NULL;
+
+    assert(!$library || $library instanceof BunnyStreamLibraryInterface);
+
+    return AccessResult::allowedIf($library?->validateSignature($signature, $version, $algorithm, $request->getContent()))
+      ->setCacheMaxAge(0);
+  }
+
+  /**
    * Method to dispatch the event with the payload.
    *
    * @param \Symfony\Component\HttpFoundation\Request $request
    *   The current request to get the payload.
-   * @param string $hash
-   *   The security hash of the webhook.
    *
    * @return \Symfony\Component\HttpFoundation\Response
    *   Return normal empty response for a 200.
    */
-  public function webhook(Request $request, string $hash): Response {
-    $config_hash = $this->config('bunny_stream.settings')->get('webhook_hash');
-
-    if ($config_hash !== $hash) {
-      throw new AccessDeniedHttpException();
-    }
-
+  public function webhook(Request $request): Response {
     $post = $request->getPayload()->all();
     $event = new WebhookEvent($post);
     $this->eventDispatcher->dispatch($event);
