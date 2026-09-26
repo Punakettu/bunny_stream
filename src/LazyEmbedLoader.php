@@ -42,7 +42,7 @@ class LazyEmbedLoader implements TrustedCallbackInterface {
    *   Render array without cache.
    */
   public function lazyLoad(string $url, int $expires, string $video_id, string $token_auth, bool $fullscreen = TRUE): array {
-    // @todo find better way to don't cache this response for anonimous
+    // @todo find better way to don't cache this response for anonymous
     // without this kill switch, just works for authenticated users.
     $this->pageCacheKillSwitch->trigger();
 
