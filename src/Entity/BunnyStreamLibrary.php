@@ -54,6 +54,7 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
     'cdn_hostname',
     'pull_zone',
     'token_authentication_key',
+    'read_only_api_key',
   ],
 )]
 final class BunnyStreamLibrary extends ConfigEntityBase implements BunnyStreamLibraryInterface {
@@ -92,5 +93,10 @@ final class BunnyStreamLibrary extends ConfigEntityBase implements BunnyStreamLi
    * Security token.
    */
   protected ?string $token_authentication_key = NULL;
+
+  /**
+   * The read-only API key, used to verify webhook signatures.
+   */
+  protected ?string $read_only_api_key = NULL;
 
 }

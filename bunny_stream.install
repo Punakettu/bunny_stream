@@ -20,3 +20,16 @@ function bunny_stream_install(): void {
   $fileSystem->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS);
   $fileSystem->copy($path, $directory . 'bunny-thumbnail.png');
 }
+
+/**
+ * Removes the webhook hash configuration.
+ */
+function bunny_stream_update_11001(): string {
+  // Webhooks are sent to /bunny-stream/webhook and
+  // verified with HMAC signature.
+  $config_factory = \Drupal::configFactory();
+  foreach (['bunny_stream.config', 'bunny_stream.settings'] as $name) {
+    $config_factory->getEditable($name)->delete();
+  }
+  return (string) t('Update the Bunny webhook URL to /bunny-stream/webhook and set the read-only API key on each library.');
+}

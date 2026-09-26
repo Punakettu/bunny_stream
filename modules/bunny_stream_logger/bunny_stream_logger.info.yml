@@ -3,6 +3,6 @@ type: module
 description: 'Sub module to view changed in videos using webhooks.'
 package: Media
 core_version_requirement: ^11.1
-configure: bunny_stream.bunny_stream_settings
+configure: entity.bunny_stream_library.collection
 dependencies:
   - 'bunny_stream:bunny_stream'
