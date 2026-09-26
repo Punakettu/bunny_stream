@@ -8,23 +8,12 @@ use Drupal\Core\Database\Connection;
 use Drupal\Core\Database\Query\PagerSelectExtender;
 use Drupal\Core\Database\Query\TableSortExtender;
 use Drupal\Core\Datetime\DateFormatterInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Returns responses for bunny_stream_logger routes.
  */
 class BunnyLogController extends ControllerBase {
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container): self {
-    return new static(
-      $container->get('database'),
-      $container->get('date.formatter')
-    );
-  }
 
   /**
    * Constructs a BunnyLogController object.

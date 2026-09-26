@@ -2,7 +2,7 @@
 
 namespace Drupal\bunny_stream;
 
-use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
@@ -33,7 +33,7 @@ class VideoManager {
   /**
    * Constructor of the class.
    *
-   * @param \GuzzleHttp\Client $client
+   * @param \GuzzleHttp\ClientInterface $client
    *   The http client to execute the requests.
    * @param int $library_id
    *   Library ID of Bunny Stream.
@@ -41,7 +41,7 @@ class VideoManager {
    *   API key for the request to bunny.net.
    */
   public function __construct(
-    protected Client $client,
+    protected ClientInterface $client,
     protected int $library_id,
     protected string $api_key
   ) {}

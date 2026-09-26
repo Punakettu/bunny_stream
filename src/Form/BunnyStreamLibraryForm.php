@@ -7,9 +7,8 @@ namespace Drupal\bunny_stream\Form;
 use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
-use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Bunny_stream_library form.
@@ -28,23 +27,13 @@ final class BunnyStreamLibraryForm extends EntityForm {
    *
    * @param \Drupal\Core\Datetime\DateFormatterInterface $dateFormatter
    *   The date.formatter service.
-   * @param \GuzzleHttp\Client $client
+   * @param \GuzzleHttp\ClientInterface $client
    *   The http_client service.
    */
   public function __construct(
     protected DateFormatterInterface $dateFormatter,
-    protected Client $client
+    protected ClientInterface $client
   ) {}
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container): self {
-    return new static(
-      $container->get('date.formatter'),
-      $container->get('http_client')
-    );
-  }
 
   /**
    * {@inheritdoc}

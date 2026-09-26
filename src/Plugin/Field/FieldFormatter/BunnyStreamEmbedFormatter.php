@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\bunny_stream\Plugin\Field\FieldFormatter;
 
 use Drupal\bunny_stream\BunnyStreamSourceInterface;
+use Drupal\bunny_stream\LazyEmbedLoader;
 use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\Attribute\FieldFormatter;
@@ -15,7 +16,6 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Url;
 use Drupal\media\Entity\MediaType;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Plugin implementation of the 'Bunny Stream' formatter.
@@ -64,23 +64,6 @@ class BunnyStreamEmbedFormatter extends FormatterBase {
     protected DateFormatterInterface $dateFormatter
   ) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static(
-      $plugin_id,
-      $plugin_definition,
-      $configuration['field_definition'],
-      $configuration['settings'],
-      $configuration['label'],
-      $configuration['view_mode'],
-      $configuration['third_party_settings'],
-      $container->get('entity_type.manager'),
-      $container->get('date.formatter')
-    );
   }
 
   /**
@@ -240,7 +223,7 @@ class BunnyStreamEmbedFormatter extends FormatterBase {
         // to avoid cache.
         $render = [
           '#lazy_builder' => [
-            '\Drupal\bunny_stream\LazyEmbedLoader::lazyLoad',
+            LazyEmbedLoader::class . ':lazyLoad',
             [
               $url->toString(),
               $this->getSetting('time'),

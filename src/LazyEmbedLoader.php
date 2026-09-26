@@ -2,6 +2,7 @@
 
 namespace Drupal\bunny_stream;
 
+use Drupal\Core\PageCache\ResponsePolicy\KillSwitch;
 use Drupal\Core\Security\TrustedCallbackInterface;
 use Drupal\Core\Url;
 
@@ -12,6 +13,16 @@ use Drupal\Core\Url;
  * BigPipe to send the video with the expiration date.
  */
 class LazyEmbedLoader implements TrustedCallbackInterface {
+
+  /**
+   * Constructs a LazyEmbedLoader object.
+   *
+   * @param \Drupal\Core\PageCache\ResponsePolicy\KillSwitch $pageCacheKillSwitch
+   *   The page_cache_kill_switch service.
+   */
+  public function __construct(
+    protected KillSwitch $pageCacheKillSwitch,
+  ) {}
 
   /**
    * Prepare the render array for the video.
@@ -30,10 +41,10 @@ class LazyEmbedLoader implements TrustedCallbackInterface {
    * @return array
    *   Render array without cache.
    */
-  public static function lazyLoad(string $url, int $expires, string $video_id, string $token_auth, bool $fullscreen = TRUE): array {
+  public function lazyLoad(string $url, int $expires, string $video_id, string $token_auth, bool $fullscreen = TRUE): array {
     // @todo find better way to don't cache this response for anonimous
     // without this kill switch, just works for authenticated users.
-    \Drupal::service('page_cache_kill_switch')->trigger();
+    $this->pageCacheKillSwitch->trigger();
 
     $expires += time();
 

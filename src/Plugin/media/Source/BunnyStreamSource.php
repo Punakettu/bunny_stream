@@ -11,6 +11,7 @@ use Drupal\Core\Config\Entity\ConfigEntityInterface;
 use Drupal\Core\Entity\Display\EntityFormDisplayInterface;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldTypePluginManagerInterface;
 use Drupal\Core\File\Exception\FileException;
 use Drupal\Core\File\FileExists;
@@ -29,8 +30,7 @@ use Drupal\media\MediaTypeInterface;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\TransferException;
 use Psr\Http\Message\ResponseInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Mime\MimeTypes;
 
 /**
@@ -80,8 +80,8 @@ class BunnyStreamSource extends MediaSourceBase implements BunnyStreamSourceInte
    *   The token service.
    * @param \Drupal\Core\StreamWrapper\StreamWrapperManagerInterface $streamWrapperManager
    *   The stream_wrapper_manager service.
-   * @param \Symfony\Component\HttpFoundation\Request $request
-   *   The current request.
+   * @param \Symfony\Component\HttpFoundation\RequestStack $requestStack
+   *   The request stack.
    * @param \Drupal\bunny_stream\BunnyStreamManagerFactoryInterface $bunnyFactory
    *   The Bunny factory service.
    */
@@ -89,7 +89,7 @@ class BunnyStreamSource extends MediaSourceBase implements BunnyStreamSourceInte
     array $configuration,
     $plugin_id,
     $plugin_definition,
-    $entity_type_manager,
+    EntityTypeManagerInterface $entity_type_manager,
     EntityFieldManagerInterface $entity_field_manager,
     ConfigFactoryInterface $config_factory,
     FieldTypePluginManagerInterface $field_type_manager,
@@ -97,31 +97,10 @@ class BunnyStreamSource extends MediaSourceBase implements BunnyStreamSourceInte
     protected FileSystemInterface $fileSystem,
     protected Token $token,
     protected StreamWrapperManagerInterface $streamWrapperManager,
-    protected Request $request,
+    protected RequestStack $requestStack,
     protected BunnyStreamManagerFactoryInterface $bunnyFactory
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $entity_type_manager, $entity_field_manager, $field_type_manager, $config_factory);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static(
-      $configuration,
-      $plugin_id,
-      $plugin_definition,
-      $container->get('entity_type.manager'),
-      $container->get('entity_field.manager'),
-      $container->get('config.factory'),
-      $container->get('plugin.manager.field.field_type'),
-      $container->get('http_client'),
-      $container->get('file_system'),
-      $container->get('token'),
-      $container->get('stream_wrapper_manager'),
-      $container->get('request_stack')->getCurrentRequest(),
-      $container->get('bunny_stream.manager')
-    );
   }
 
   /**
@@ -467,7 +446,7 @@ class BunnyStreamSource extends MediaSourceBase implements BunnyStreamSourceInte
     try {
       $response = $this->httpClient->request('GET', $remote_thumbnail_url, [
         'headers' => [
-          'Referer' => $this->request->getSchemeAndHttpHost(),
+          'Referer' => $this->requestStack->getCurrentRequest()->getSchemeAndHttpHost(),
         ],
       ]);
       if ($response->getStatusCode() === 200) {

@@ -1,4 +1,7 @@
 services:
+  _defaults:
+    autowire: true
   bunny_stream.manager:
     class: Drupal\bunny_stream\BunnyStreamManagerFactory
-    arguments: [ '@entity_type.manager', '@http_client' ]
+  Drupal\bunny_stream\BunnyStreamManagerFactoryInterface: '@bunny_stream.manager'
+  Drupal\bunny_stream\LazyEmbedLoader: ~

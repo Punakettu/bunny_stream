@@ -4,10 +4,10 @@ namespace Drupal\bunny_stream\Plugin\Validation\Constraint;
 
 use Drupal\bunny_stream\BunnyStreamManagerFactoryInterface;
 use Drupal\bunny_stream\Plugin\media\Source\BunnyStreamSource;
+use Drupal\Core\DependencyInjection\AutowireTrait;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
@@ -17,6 +17,7 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
  */
 class BunnyStreamConstraintValidator extends ConstraintValidator implements ContainerInjectionInterface {
 
+  use AutowireTrait;
   use StringTranslationTrait;
 
   /**
@@ -28,15 +29,6 @@ class BunnyStreamConstraintValidator extends ConstraintValidator implements Cont
   public function __construct(
     protected BunnyStreamManagerFactoryInterface $bunnyStreamManagerFactory
   ) {}
-
-  /**
-   * {@inheritDoc}
-   */
-  public static function create(ContainerInterface $container): self {
-    return new static(
-      $container->get('bunny_stream.manager')
-    );
-  }
 
   /**
    * {@inheritdoc}

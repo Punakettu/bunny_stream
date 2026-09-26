@@ -4,7 +4,6 @@ namespace Drupal\bunny_stream\Controller;
 
 use Drupal\bunny_stream\Event\WebhookEvent;
 use Drupal\Core\Controller\ControllerBase;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,17 +21,8 @@ class WebhookController extends ControllerBase {
    *   The event_dispatcher service.
    */
   public function __construct(
-    protected EventDispatcherInterface $eventDispatcher
+    protected EventDispatcherInterface $eventDispatcher,
   ) {}
-
-  /**
-   * {@inheritDoc}
-   */
-  public static function create(ContainerInterface $container): self {
-    return new static(
-      $container->get('event_dispatcher')
-    );
-  }
 
   /**
    * Method to dispatch the event with the payload.

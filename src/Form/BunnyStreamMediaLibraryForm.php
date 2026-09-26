@@ -4,6 +4,7 @@ namespace Drupal\bunny_stream\Form;
 
 use Drupal\bunny_stream\BunnyStreamManagerFactoryInterface;
 use Drupal\bunny_stream\BunnyStreamSourceInterface;
+use Drupal\Core\DependencyInjection\AutowireTrait;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -11,12 +12,13 @@ use Drupal\Core\Url;
 use Drupal\media_library\Form\AddFormBase;
 use Drupal\media_library\MediaLibraryUiBuilder;
 use Drupal\media_library\OpenerResolverInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Creates a form to create media entities from Bunny stream ID's.
  */
 class BunnyStreamMediaLibraryForm extends AddFormBase {
+
+  use AutowireTrait;
 
   /**
    * Constructs an AddFormBase object.
@@ -37,18 +39,6 @@ class BunnyStreamMediaLibraryForm extends AddFormBase {
     protected BunnyStreamManagerFactoryInterface $bunnyStreamManagerFactory
   ) {
     parent::__construct($entity_type_manager, $library_ui_builder, $opener_resolver);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container) {
-    return new static(
-      $container->get('entity_type.manager'),
-      $container->get('media_library.ui_builder'),
-      $container->get('media_library.opener_resolver'),
-      $container->get('bunny_stream.manager')
-    );
   }
 
   /**

@@ -4,7 +4,7 @@ namespace Drupal\bunny_stream;
 
 use Drupal\Core\Config\Entity\ConfigEntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 
 /**
  * Service to manage the factory of the videos.
@@ -16,19 +16,18 @@ class BunnyStreamManagerFactory implements BunnyStreamManagerFactoryInterface {
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   The entity_type.manager service.
-   * @param \GuzzleHttp\Client $client
+   * @param \GuzzleHttp\ClientInterface $client
    *   The http_client service.
    */
   public function __construct(
     protected EntityTypeManagerInterface $entityTypeManager,
-    protected Client $client
+    protected ClientInterface $client
   ) {}
 
   /**
    * {@inheritDoc}
    */
   public function getVideoManager(string $config_id): ?VideoManager {
-    /** @var \Drupal\bunny_stream\BunnyStreamLibraryInterface|null $config */
     $config = $this->loadConfig($config_id);
 
     if (!is_null($config)) {
