@@ -54,7 +54,6 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
     'cdn_hostname',
     'pull_zone',
     'token_authentication_key',
-    'time',
   ],
 )]
 final class BunnyStreamLibrary extends ConfigEntityBase implements BunnyStreamLibraryInterface {
@@ -62,36 +61,36 @@ final class BunnyStreamLibrary extends ConfigEntityBase implements BunnyStreamLi
   /**
    * The id of the library.
    */
-  protected int $id;
+  protected ?string $id = NULL;
 
   /**
    * The name of the library.
    */
-  protected string $label;
+  protected ?string $label = NULL;
 
   /**
    * The example description.
    */
-  protected string $description;
+  protected ?string $description = NULL;
 
   /**
    * The API key to access to this library in Bunny stream.
    */
-  protected string $api_key;
+  protected ?string $api_key = NULL;
 
   /**
    * The cdn hostname of the library.
    */
-  protected string $cdn_hostname;
+  protected ?string $cdn_hostname = NULL;
 
   /**
    * The pull zone of the library.
    */
-  protected string $pull_zone;
+  protected ?string $pull_zone = NULL;
 
   /**
    * Security token.
    */
-  protected string $token_authentication_key;
+  protected ?string $token_authentication_key = NULL;
 
 }

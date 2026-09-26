@@ -73,12 +73,12 @@ class BunnyStreamEmbedFormatter extends FormatterBase {
    */
   public static function defaultSettings() {
     return [
-      'responsive' => 1,
-      'autoplay' => 0,
-      'preload' => 1,
-      'loop' => 0,
-      'muted' => 0,
-      'allow_fullscreen' => 1,
+      'responsive' => TRUE,
+      'autoplay' => FALSE,
+      'preload' => TRUE,
+      'loop' => FALSE,
+      'muted' => FALSE,
+      'allow_fullscreen' => TRUE,
       'time' => 21600,
     ] + parent::defaultSettings();
   }

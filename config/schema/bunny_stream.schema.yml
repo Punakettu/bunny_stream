@@ -31,34 +31,43 @@ bunny_stream.bunny_stream_library.*:
       constraints:
         Uuid:
           versions: 4
-    time:
-      type: integer
-      label: Time
-      constraints:
-        PrimitiveType: []
 
 field.formatter.settings.bunny_stream_embed:
   type: mapping
   label: Bunny Stream formatter settings
   mapping:
     responsive:
-      type: bool
+      type: boolean
       label: Responsive
     autoplay:
-      type: bool
+      type: boolean
       label: Autoplay
     preload:
-      type: bool
+      type: boolean
       label: Preload
     loop:
-      type: bool
+      type: boolean
       label: Loop
     muted:
-      type: bool
+      type: boolean
       label: Muted
-    allowfullscreen:
-      type: bool
+    allow_fullscreen:
+      type: boolean
       label: Allow fullscreen
+    time:
+      type: integer
+      label: 'Token expiration time'
+
+media.source.bunny_stream:
+  type: media.source.field_aware
+  label: 'Bunny Stream media source configuration'
+  mapping:
+    thumbnails_directory:
+      type: uri
+      label: 'URI of thumbnail storage directory'
+    library:
+      type: string
+      label: 'Bunny Stream library ID'
 
 # Schema for the configuration files of the Bunny Stream module.
 bunny_stream.settings:

@@ -346,7 +346,7 @@ class BunnyStreamSource extends MediaSourceBase implements BunnyStreamSourceInte
   public function defaultConfiguration() {
     return parent::defaultConfiguration() + [
       'thumbnails_directory' => 'public://bunny_stream_thumbnails/[date:custom:Y-m]',
-      'library' => [],
+      'library' => '',
     ];
   }
 
