@@ -56,13 +56,6 @@ class WebhookController extends ControllerBase {
     $event = new WebhookEvent($post);
     $this->eventDispatcher->dispatch($event);
 
-    // @phpstan-ignore classConstant.deprecated
-    if (!$event->isPropagationStopped() && $this->eventDispatcher->hasListeners(WebhookEvent::WEBHOOK)) {
-      @trigger_error('Subscribing to the "bunny_stream.webhook" event is deprecated in bunny_stream:1.0.0-beta3 and is removed from bunny_stream:2.0.0. Subscribe to ' . WebhookEvent::class . ' instead.', E_USER_DEPRECATED);
-      // @phpstan-ignore classConstant.deprecated
-      $this->eventDispatcher->dispatch($event, WebhookEvent::WEBHOOK);
-    }
-
     return new Response();
   }
 
