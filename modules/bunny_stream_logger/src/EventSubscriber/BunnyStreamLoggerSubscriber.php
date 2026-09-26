@@ -48,7 +48,7 @@ final class BunnyStreamLoggerSubscriber implements EventSubscriberInterface {
    */
   public static function getSubscribedEvents(): array {
     return [
-      WebhookEvent::WEBHOOK => ['onWebhook'],
+      WebhookEvent::class => ['onWebhook'],
     ];
   }
 
