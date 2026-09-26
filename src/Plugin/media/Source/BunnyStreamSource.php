@@ -298,15 +298,33 @@ class BunnyStreamSource extends MediaSourceBase implements BunnyStreamSourceInte
     ];
 
     $form['library'] = [
-      '#type' => 'select',
       '#title' => $this->t('Bunny library'),
-      '#options' => $config_list,
-      '#default_value' => $configuration['library'],
-      '#description' => $this->t('Select the library to use for this Media Type, if you dont have a library configured in your site, you can <a href="@url">create one</a>.', [
-        '@url' => Url::fromRoute('entity.bunny_stream_library.add_form')->toString(),
-      ]),
       '#required' => TRUE,
     ];
+
+    if (!$config_list) {
+      $form['library'] += [
+        '#type' => 'item',
+        'message' => [
+          '#theme' => 'status_messages',
+          '#message_list' => [
+            'warning' => [
+              $this->t('No Bunny libraries are configured. <a href="@url">Create one here</a>.', [
+                '@url' => Url::fromRoute('entity.bunny_stream_library.add_form')->toString(),
+              ]),
+            ],
+          ],
+        ],
+      ];
+    }
+    else {
+      $form['library'] += [
+        '#type' => 'select',
+        '#options' => $config_list,
+        '#default_value' => $configuration['library'],
+        '#description' => $this->t('Select the library to use for this media type.'),
+      ];
+    }
 
     return $form;
   }
@@ -317,7 +335,12 @@ class BunnyStreamSource extends MediaSourceBase implements BunnyStreamSourceInte
   public function validateConfigurationForm(array &$form, FormStateInterface $form_state): void {
     $library = $form_state->getValue('library');
 
-    if (!$this->entityTypeManager->getStorage('bunny_stream_library')->load($library)) {
+    if (!$library) {
+      $form_state->setErrorByName('library', $this->t('A Bunny library is required. <a href="@url">Create one here</a>.', [
+        '@url' => Url::fromRoute('entity.bunny_stream_library.add_form')->toString(),
+      ]));
+    }
+    elseif (!$this->entityTypeManager->getStorage('bunny_stream_library')->load($library)) {
       $form_state->setErrorByName('library', $this->t('The library ID @library is not configured in Drupal.', [
         '@library' => $library,
       ]));

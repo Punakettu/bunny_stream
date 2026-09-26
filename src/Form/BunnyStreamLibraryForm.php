@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\bunny_stream\Form;
 
-use Drupal\bunny_stream\Entity\BunnyStreamLibrary;
+use Drupal\bunny_stream\BunnyStreamLibraryInterface;
 use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
@@ -35,7 +35,7 @@ final class BunnyStreamLibraryForm extends EntityForm {
   public function form(array $form, FormStateInterface $form_state): array {
     $form = parent::form($form, $form_state);
 
-    assert($this->entity instanceof BunnyStreamLibrary);
+    assert($this->entity instanceof BunnyStreamLibraryInterface);
 
     $form['label'] = [
       '#type' => 'textfield',
@@ -43,7 +43,14 @@ final class BunnyStreamLibraryForm extends EntityForm {
       '#maxlength' => 255,
       '#default_value' => $this->entity->label(),
       '#required' => TRUE,
-      '#description' => $this->t('Name of the library, used only in Drupal..'),
+      '#description' => $this->t('Name of the library, used only in Drupal.'),
+    ];
+
+    $form['description'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('Description'),
+      '#default_value' => $this->entity->get('description'),
+      '#description' => $this->t('Set description for this library. used only in Drupal.'),
     ];
 
     $form['id'] = [
@@ -53,23 +60,7 @@ final class BunnyStreamLibraryForm extends EntityForm {
       '#disabled' => !$this->entity->isNew(),
       '#maxlength' => 255,
       '#required' => TRUE,
-      '#description' => $this->t('The library ID, just numbers, will be used like entity ID.'),
-    ];
-
-    $form['description'] = [
-      '#type' => 'textarea',
-      '#title' => $this->t('Description'),
-      '#default_value' => $this->entity->get('description'),
-      '#description' => $this->t('Set description for this library, just for information porpoises.'),
-    ];
-
-    $form['api_key'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('API key'),
-      '#maxlength' => 255,
-      '#default_value' => $this->entity->get('api_key'),
-      '#required' => TRUE,
-      '#description' => $this->t('The API key for the request to Bunny API. You can get it from Stream -> Library -> API.'),
+      '#description' => $this->t('The library ID. You can get it from Stream -> Library -> API.'),
     ];
 
     $form['cdn_hostname'] = [
@@ -79,6 +70,15 @@ final class BunnyStreamLibraryForm extends EntityForm {
       '#default_value' => $this->entity->get('cdn_hostname'),
       '#required' => TRUE,
       '#description' => $this->t('The hostname to use to link the videos on the site. You can get it from Stream -> Library -> API.'),
+    ];
+
+    $form['api_key'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('API key'),
+      '#maxlength' => 255,
+      '#default_value' => $this->entity->get('api_key'),
+      '#required' => TRUE,
+      '#description' => $this->t('The API key for the request to Bunny API. You can get it from Stream -> Library -> API.'),
     ];
 
     $form['pull_zone'] = [
@@ -110,9 +110,8 @@ final class BunnyStreamLibraryForm extends EntityForm {
     $library_id = $form_state->getValue('id');
     $api_key = $form_state->getValue('api_key');
 
-    $error_message = $this->t('Please, check if API Key @api_key and library ID @library_id exists and are valid.',
+    $error_message = $this->t('Please, check that API Key is correct and library ID @library_id exists.',
       [
-        '@api_key' => $api_key,
         '@library_id' => $library_id,
       ]
     );
@@ -129,7 +128,7 @@ final class BunnyStreamLibraryForm extends EntityForm {
         $form_state->setError($form, (string) $error_message);
       }
     }
-    catch (GuzzleException $exception) {
+    catch (GuzzleException) {
       $form_state->setError($form, (string) $error_message);
     }
 
