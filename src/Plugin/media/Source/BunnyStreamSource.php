@@ -19,7 +19,9 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Logger\LoggerChannelTrait;
 use Drupal\Core\Messenger\MessengerTrait;
 use Drupal\Core\StreamWrapper\StreamWrapperManagerInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Utility\Token;
+use Drupal\media\Attribute\MediaSource;
 use Drupal\media\MediaInterface;
 use Drupal\media\MediaSourceBase;
 use Drupal\media\MediaSourceFieldConstraintsInterface;
@@ -33,16 +35,14 @@ use Symfony\Component\Mime\MimeTypes;
 
 /**
  * Provides a media source plugin for Bunny Stream resources.
- *
- * @MediaSource(
- *   id = "bunny_stream",
- *   label = @Translation("Bunny Stream"),
- *   description = @Translation("Use Bunny Stream for reusable media."),
- *   allowed_field_types = {"string"},
- *   default_thumbnail_filename = "bunny.png",
- *   providers = {},
- * )
  */
+#[MediaSource(
+  id: 'bunny_stream',
+  label: new TranslatableMarkup('Bunny Stream'),
+  description: new TranslatableMarkup('Use Bunny Stream for reusable media.'),
+  allowed_field_types: ['string'],
+  default_thumbnail_filename: 'bunny.png',
+)]
 class BunnyStreamSource extends MediaSourceBase implements BunnyStreamSourceInterface, MediaSourceFieldConstraintsInterface {
 
   protected const DEFAULT_THUMBNAIL = 'public://bunny_stream_thumbnails/bunny-thumbnail.png';

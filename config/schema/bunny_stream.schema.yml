@@ -65,6 +65,6 @@ bunny_stream.settings:
   type: config_object
   label: 'Bunny Stream settings'
   mapping:
-    example:
+    webhook_hash:
       type: string
-      label: 'Example'
+      label: 'Webhook hash'

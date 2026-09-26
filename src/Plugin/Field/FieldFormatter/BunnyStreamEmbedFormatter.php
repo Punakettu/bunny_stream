@@ -7,10 +7,12 @@ namespace Drupal\bunny_stream\Plugin\Field\FieldFormatter;
 use Drupal\bunny_stream\BunnyStreamSourceInterface;
 use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Field\Attribute\FieldFormatter;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FormatterBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Url;
 use Drupal\media\Entity\MediaType;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -20,13 +22,12 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * This plugin never should be used out of Media, loads information
  * of Media Source to obtain required data.
- *
- * @FieldFormatter(
- *   id = "bunny_stream_embed",
- *   label = @Translation("Bunny Stream Embed"),
- *   field_types = {"string"},
- * )
  */
+#[FieldFormatter(
+  id: 'bunny_stream_embed',
+  label: new TranslatableMarkup('Bunny Stream Embed'),
+  field_types: ['string'],
+)]
 class BunnyStreamEmbedFormatter extends FormatterBase {
 
   /**

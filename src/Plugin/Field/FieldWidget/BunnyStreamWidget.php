@@ -3,23 +3,22 @@
 namespace Drupal\bunny_stream\Plugin\Field\FieldWidget;
 
 use Drupal\bunny_stream\BunnyStreamSourceInterface;
+use Drupal\Core\Field\Attribute\FieldWidget;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\Plugin\Field\FieldWidget\StringTextfieldWidget;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\media\Entity\MediaType;
 
 /**
  * Plugin implementation of the 'bunny_stream_textfield' widget.
- *
- * @FieldWidget(
- *   id = "bunny_stream_textfield",
- *   label = @Translation("Bunny Stream"),
- *   field_types = {
- *     "string",
- *   },
- * )
  */
+#[FieldWidget(
+  id: 'bunny_stream_textfield',
+  label: new TranslatableMarkup('Bunny Stream'),
+  field_types: ['string'],
+)]
 class BunnyStreamWidget extends StringTextfieldWidget {
 
   /**
