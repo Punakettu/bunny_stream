@@ -2,7 +2,7 @@ name: Bunny Stream logger
 type: module
 description: 'Sub module to view changed in videos using webhooks.'
 package: Media
-core_version_requirement: ^10
+core_version_requirement: ^10.3 || ^11
 configure: bunny_stream.bunny_stream_settings
 dependencies:
   - 'bunny_stream:bunny_stream'
