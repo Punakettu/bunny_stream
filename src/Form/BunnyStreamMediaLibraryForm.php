@@ -119,7 +119,7 @@ class BunnyStreamMediaLibraryForm extends AddFormBase {
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current form state.
    */
-  public function validateVideo(array &$form, FormStateInterface $form_state) {
+  public function validateVideo(array &$form, FormStateInterface $form_state): void {
     $video_id = $form_state->getValue('id');
 
     /** @var \Drupal\bunny_stream\Plugin\media\Source\BunnyStreamSource $source */
@@ -151,7 +151,7 @@ class BunnyStreamMediaLibraryForm extends AddFormBase {
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The form state.
    */
-  public function addButtonSubmit(array $form, FormStateInterface $form_state) {
+  public function addButtonSubmit(array $form, FormStateInterface $form_state): void {
     $this->processInputValues([$form_state->getValue('id')], $form, $form_state);
   }
 

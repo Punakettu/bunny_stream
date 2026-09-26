@@ -35,7 +35,7 @@ class WebhookController extends ControllerBase {
    * @return \Symfony\Component\HttpFoundation\Response
    *   Return normal empty response for a 200.
    */
-  public function webhook(Request $request, string $hash) {
+  public function webhook(Request $request, string $hash): Response {
     $config_hash = $this->config('bunny_stream.settings')->get('webhook_hash');
 
     if ($config_hash !== $hash) {

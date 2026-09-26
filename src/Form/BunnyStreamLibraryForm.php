@@ -16,13 +16,6 @@ use GuzzleHttp\Exception\GuzzleException;
 final class BunnyStreamLibraryForm extends EntityForm {
 
   /**
-   * The entity being used by this form.
-   *
-   * @var \Drupal\Core\Entity\ContentEntityInterface
-   */
-  protected $entity;
-
-  /**
    * Constructor of the class to inject services.
    *
    * @param \Drupal\Core\Datetime\DateFormatterInterface $dateFormatter
