@@ -25,7 +25,8 @@ class BunnyLogController extends ControllerBase {
    */
   public function __construct(
     protected Connection $database,
-    protected DateFormatterInterface $dateFormatter) {
+    protected DateFormatterInterface $dateFormatter,
+  ) {
   }
 
   /**

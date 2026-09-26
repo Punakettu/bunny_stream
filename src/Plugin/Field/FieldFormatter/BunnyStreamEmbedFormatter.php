@@ -22,6 +22,8 @@ use Drupal\media\Entity\MediaType;
  *
  * This plugin never should be used out of Media, loads information
  * of Media Source to obtain required data.
+ *
+ * @extends \Drupal\Core\Field\FormatterBase<\Drupal\Core\Field\FieldItemListInterface<\Drupal\Core\Field\Plugin\Field\FieldType\StringItem>>
  */
 #[FieldFormatter(
   id: 'bunny_stream_embed',
@@ -50,7 +52,7 @@ class BunnyStreamEmbedFormatter extends FormatterBase {
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   The entity_type.manager service.
    * @param \Drupal\Core\Datetime\DateFormatterInterface $dateFormatter
-   * The date.formatter service.
+   *   The date.formatter service.
    */
   public function __construct(
     $plugin_id,
@@ -61,7 +63,7 @@ class BunnyStreamEmbedFormatter extends FormatterBase {
     $view_mode,
     array $third_party_settings,
     protected EntityTypeManagerInterface $entityTypeManager,
-    protected DateFormatterInterface $dateFormatter
+    protected DateFormatterInterface $dateFormatter,
   ) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
   }
@@ -180,6 +182,11 @@ class BunnyStreamEmbedFormatter extends FormatterBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @param \Drupal\Core\Field\FieldItemListInterface<\Drupal\Core\Field\Plugin\Field\FieldType\StringItem> $items
+   *   The field values to be rendered.
+   * @param string $langcode
+   *   The language that should be used to render the field.
    */
   public function viewElements(FieldItemListInterface $items, $langcode): array {
     $element = [];
@@ -239,7 +246,8 @@ class BunnyStreamEmbedFormatter extends FormatterBase {
             '#markup' => 'Loading video...',
           ],
         ];
-      } else {
+      }
+      else {
         $render = [
           '#theme' => "bunny_embed",
           '#url' => $url->toString(),
@@ -263,4 +271,5 @@ class BunnyStreamEmbedFormatter extends FormatterBase {
     }
     return MediaType::load($target_bundle)->getSource() instanceof BunnyStreamSourceInterface;
   }
+
 }

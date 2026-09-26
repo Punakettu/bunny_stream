@@ -12,6 +12,7 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
  */
 enum WebhookStates: int {
 
+  // phpcs:disable Drupal.NamingConventions.ValidEnumCase
   case QUEUED = 0;
   case PROCESSING = 1;
   case ENCODING = 2;
@@ -23,6 +24,7 @@ enum WebhookStates: int {
   case PRESIGNED_UPLOAD_FAILED = 8;
   case CAPTION_GENERATED = 9;
   case TITLE_OR_DESCRIPTION_GENERATED = 10;
+  // phpcs:enable
 
   /**
    * Get human readable status label.

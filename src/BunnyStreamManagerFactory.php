@@ -2,7 +2,6 @@
 
 namespace Drupal\bunny_stream;
 
-use Drupal\Core\Config\Entity\ConfigEntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use GuzzleHttp\ClientInterface;
 
@@ -21,7 +20,7 @@ class BunnyStreamManagerFactory implements BunnyStreamManagerFactoryInterface {
    */
   public function __construct(
     protected EntityTypeManagerInterface $entityTypeManager,
-    protected ClientInterface $client
+    protected ClientInterface $client,
   ) {}
 
   /**
@@ -43,12 +42,12 @@ class BunnyStreamManagerFactory implements BunnyStreamManagerFactoryInterface {
    * @param string $config_id
    *   The id of the configuration entity to load.
    *
-   * @return \Drupal\Core\Entity\EntityInterface|null
+   * @return \Drupal\bunny_stream\BunnyStreamLibraryInterface|null
    *   The configuration entity.
    */
-  private function loadConfig(string $config_id): ?ConfigEntityInterface {
-    /** @var \Drupal\Core\Config\Entity\ConfigEntityInterface|null $entity */
+  private function loadConfig(string $config_id): ?BunnyStreamLibraryInterface {
     $entity = $this->entityTypeManager->getStorage('bunny_stream_library')->load($config_id);
+    assert(!$entity || $entity instanceof BunnyStreamLibraryInterface);
     return $entity;
   }
 

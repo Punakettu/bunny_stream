@@ -36,7 +36,7 @@ class BunnyStreamMediaLibraryForm extends AddFormBase {
     EntityTypeManagerInterface $entity_type_manager,
     MediaLibraryUiBuilder $library_ui_builder,
     OpenerResolverInterface $opener_resolver,
-    protected BunnyStreamManagerFactoryInterface $bunnyStreamManagerFactory
+    protected BunnyStreamManagerFactoryInterface $bunnyStreamManagerFactory,
   ) {
     parent::__construct($entity_type_manager, $library_ui_builder, $opener_resolver);
   }

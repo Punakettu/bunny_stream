@@ -35,8 +35,8 @@ class LazyEmbedLoader implements TrustedCallbackInterface {
    *   The video id.
    * @param string $token_auth
    *   The token auth of bunny to generate the token.
-   *  @param bool $fullscreen
-   *    Indicated if video allow fullscreen.
+   * @param bool $fullscreen
+   *   Indicated if video allow fullscreen.
    *
    * @return array
    *   Render array without cache.
@@ -72,4 +72,5 @@ class LazyEmbedLoader implements TrustedCallbackInterface {
       'lazyLoad',
     ];
   }
+
 }

@@ -23,6 +23,9 @@ class BunnyStreamWidget extends StringTextfieldWidget {
 
   /**
    * {@inheritdoc}
+   *
+   * @phpstan-param \Drupal\Core\Field\FieldItemListInterface<\Drupal\Core\Field\Plugin\Field\FieldType\StringItem> $items
+   *   Array of default values for this field.
    */
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
     $element = parent::formElement($items, $delta, $element, $form, $form_state);

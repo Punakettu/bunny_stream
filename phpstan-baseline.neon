@@ -1,0 +1,37 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Call to an undefined method Drupal\\Core\\Database\\Query\\SelectInterface\:\:limit\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: modules/bunny_stream_logger/src/Controller/BunnyLogController.php
+
+		-
+			message: '#^Method Drupal\\bunny_stream_logger\\Form\\BunnyLoggerFilterForm\:\:resetForm\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: modules/bunny_stream_logger/src/Form/BunnyLoggerFilterForm.php
+
+		-
+			message: '#^Method Drupal\\bunny_stream_logger\\Form\\BunnyLoggerFilterForm\:\:submitForm\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: modules/bunny_stream_logger/src/Form/BunnyLoggerFilterForm.php
+
+		-
+			message: '#^If condition is always true\.$#'
+			identifier: if.alwaysTrue
+			count: 1
+			path: src/Form/BunnyStreamMediaLibraryForm.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: src/Form/BunnyStreamMediaLibraryForm.php
+
+		-
+			message: '#^Method Drupal\\bunny_stream\\Plugin\\media\\Source\\BunnyStreamSource\:\:getSourceFieldConstraints\(\) should return array\<Symfony\\Component\\Validator\\Constraint\> but returns array\<string, array\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Plugin/media/Source/BunnyStreamSource.php

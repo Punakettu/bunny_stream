@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- PHP_CodeSniffer configuration for the Bunny Stream module. -->
+<ruleset name="bunny_stream">
+  <description>Drupal and DrupalPractice coding standards.</description>
+
+  <file>.</file>
+
+  <arg name="extensions" value="php,module,inc,install,test,profile,theme,css,info,txt,md,yml"/>
+  <arg name="colors"/>
+  <arg name="parallel" value="8"/>
+  <arg value="p"/>
+
+  <rule ref="Drupal"/>
+  <rule ref="DrupalPractice"/>
+</ruleset>

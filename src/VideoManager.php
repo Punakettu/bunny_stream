@@ -43,7 +43,7 @@ class VideoManager {
   public function __construct(
     protected ClientInterface $client,
     protected int $library_id,
-    protected string $api_key
+    protected string $api_key,
   ) {}
 
   /**

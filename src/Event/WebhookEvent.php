@@ -16,7 +16,7 @@ class WebhookEvent extends Event {
    *   Payload of the webhook from bunny.net.
    */
   public function __construct(
-    protected array $payload
+    protected array $payload,
   ) {}
 
   /**

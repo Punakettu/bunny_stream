@@ -10,16 +10,13 @@ use Drupal\Core\File\FileSystemInterface;
 /**
  * Implements hook_install().
  */
-function bunny_stream_install($is_syncing): void {
+function bunny_stream_install(): void {
 
   $path = \Drupal::service('extension.list.module')->getPath('bunny_stream') . '/images/icon/no-thumbnail.png';
 
-  /** @var \Drupal\Core\File\FileSystemInterface $fileSystem */
-  $fileSystem = \Drupal::service('file_system');
-
   $directory = 'public://bunny_stream_thumbnails/';
 
+  $fileSystem = \Drupal::service(FileSystemInterface::class);
   $fileSystem->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS);
-
   $fileSystem->copy($path, $directory . 'bunny-thumbnail.png');
 }

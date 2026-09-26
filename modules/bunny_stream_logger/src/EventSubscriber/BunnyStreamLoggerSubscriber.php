@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Drupal\bunny_stream_logger\EventSubscriber;
 
@@ -20,7 +20,7 @@ final class BunnyStreamLoggerSubscriber implements EventSubscriberInterface {
    *   The 'database¡ service.
    */
   public function __construct(
-    protected Connection $database
+    protected Connection $database,
   ) {}
 
   /**

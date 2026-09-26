@@ -21,13 +21,13 @@ class BunnyStreamConstraint extends SymfonyConstraint {
    *
    * @var string
    */
-  public $emptyIdMessage = 'The video id cannot be empty.';
+  public string $emptyIdMessage = 'The video id cannot be empty.';
 
   /**
    * The error message if the URL does not match.
    *
    * @var string
    */
-  public $invalidIdMessage = 'The given ID is not valid video.';
+  public string $invalidIdMessage = 'The given ID is not valid video.';
 
 }

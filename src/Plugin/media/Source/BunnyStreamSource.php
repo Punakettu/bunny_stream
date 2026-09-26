@@ -2,12 +2,12 @@
 
 namespace Drupal\bunny_stream\Plugin\media\Source;
 
+use Drupal\bunny_stream\BunnyStreamLibraryInterface;
 use Drupal\bunny_stream\BunnyStreamManagerFactoryInterface;
 use Drupal\bunny_stream\BunnyStreamSourceInterface;
 use Drupal\Component\Render\PlainTextOutput;
 use Drupal\Component\Utility\Crypt;
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Config\Entity\ConfigEntityInterface;
 use Drupal\Core\Entity\Display\EntityFormDisplayInterface;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
@@ -45,7 +45,7 @@ use Symfony\Component\Mime\MimeTypes;
 )]
 class BunnyStreamSource extends MediaSourceBase implements BunnyStreamSourceInterface, MediaSourceFieldConstraintsInterface {
 
-  protected const DEFAULT_THUMBNAIL = 'public://bunny_stream_thumbnails/bunny-thumbnail.png';
+  protected const string DEFAULT_THUMBNAIL = 'public://bunny_stream_thumbnails/bunny-thumbnail.png';
 
   use MessengerTrait;
   use LoggerChannelTrait;
@@ -53,7 +53,7 @@ class BunnyStreamSource extends MediaSourceBase implements BunnyStreamSourceInte
   /**
    * Bunny library that store the configuration.
    */
-  protected ?ConfigEntityInterface $library;
+  protected ?BunnyStreamLibraryInterface $library;
 
   /**
    * Constructs a new BunnyStream instance.
@@ -98,7 +98,7 @@ class BunnyStreamSource extends MediaSourceBase implements BunnyStreamSourceInte
     protected Token $token,
     protected StreamWrapperManagerInterface $streamWrapperManager,
     protected RequestStack $requestStack,
-    protected BunnyStreamManagerFactoryInterface $bunnyFactory
+    protected BunnyStreamManagerFactoryInterface $bunnyFactory,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $entity_type_manager, $entity_field_manager, $field_type_manager, $config_factory);
   }
@@ -389,12 +389,16 @@ class BunnyStreamSource extends MediaSourceBase implements BunnyStreamSourceInte
   /**
    * Loads the library from the current configuration.
    *
-   * @return \Drupal\Core\Config\Entity\ConfigEntityInterface|null
+   * @return \Drupal\bunny_stream\BunnyStreamLibraryInterface|null
    *   The library.
    */
-  public function getLibrary(): ?ConfigEntityInterface {
+  public function getLibrary(): ?BunnyStreamLibraryInterface {
     if (!isset($this->library)) {
-      $this->library = $this->entityTypeManager->getStorage('bunny_stream_library')->load($this->getConfiguration()['library']);
+      $library = $this->entityTypeManager->getStorage('bunny_stream_library')->load($this->getConfiguration()['library']);
+
+      assert(!$library || $library instanceof BunnyStreamLibraryInterface);
+
+      $this->library = $library;
     }
     return $this->library;
   }

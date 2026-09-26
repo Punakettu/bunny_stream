@@ -1,9 +1,10 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Drupal\bunny_stream\Form;
 
+use Drupal\bunny_stream\Entity\BunnyStreamLibrary;
 use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
@@ -25,15 +26,16 @@ final class BunnyStreamLibraryForm extends EntityForm {
    */
   public function __construct(
     protected DateFormatterInterface $dateFormatter,
-    protected ClientInterface $client
+    protected ClientInterface $client,
   ) {}
 
   /**
    * {@inheritdoc}
    */
   public function form(array $form, FormStateInterface $form_state): array {
-
     $form = parent::form($form, $form_state);
+
+    assert($this->entity instanceof BunnyStreamLibrary);
 
     $form['label'] = [
       '#type' => 'textfield',
@@ -143,6 +145,7 @@ final class BunnyStreamLibraryForm extends EntityForm {
       match($result) {
         \SAVED_NEW => $this->t('Created new bunny stream library %label.', $message_args),
         \SAVED_UPDATED => $this->t('Updated bunny stream library %label.', $message_args),
+        default => throw new \LogicException(),
       }
     );
     $form_state->setRedirectUrl($this->entity->toUrl('collection'));

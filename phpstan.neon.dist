@@ -1,0 +1,18 @@
+# PHPStan configuration for the Bunny Stream module.
+#
+# Run from the Drupal project root:
+#   vendor/bin/phpstan analyse -c web/modules/custom/bunny_stream/phpstan.neon.dist
+
+includes:
+  - phpstan-baseline.neon
+
+parameters:
+  level: 6
+
+  paths:
+    - .
+
+  ignoreErrors:
+    # Drupal passes untyped arrays (render arrays, form arrays, ...) everywhere;
+    # requiring iterable value types on all of them is more noise than signal.
+    - identifier: missingType.iterableValue
