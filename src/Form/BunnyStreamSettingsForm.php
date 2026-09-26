@@ -33,7 +33,7 @@ final class BunnyStreamSettingsForm extends ConfigFormBase {
     $form['webhook_hash'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Webhook hash'),
-      '#default_value' => $this->config('bunny_stream.settings')->get('webhook_hash'),
+      '#config_target' => 'bunny_stream.settings:webhook_hash',
       '#description' => $this->t('Use this hash for the webhook, if the hash is 1234asdf the webhook endpoint will be "/bunny-stream/webhook/1234asdf".'),
     ];
 
@@ -43,16 +43,6 @@ final class BunnyStreamSettingsForm extends ConfigFormBase {
     ];
 
     return parent::buildForm($form, $form_state);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function submitForm(array &$form, FormStateInterface $form_state): void {
-    $this->config('bunny_stream.settings')
-      ->set('webhook_hash', $form_state->getValue('webhook_hash'))
-      ->save();
-    parent::submitForm($form, $form_state);
   }
 
 }
