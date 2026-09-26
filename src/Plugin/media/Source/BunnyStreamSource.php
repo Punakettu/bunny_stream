@@ -21,6 +21,7 @@ use Drupal\Core\Logger\LoggerChannelTrait;
 use Drupal\Core\Messenger\MessengerTrait;
 use Drupal\Core\StreamWrapper\StreamWrapperManagerInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\Core\Url;
 use Drupal\Core\Utility\Token;
 use Drupal\media\Attribute\MediaSource;
 use Drupal\media\MediaInterface;
@@ -302,7 +303,7 @@ class BunnyStreamSource extends MediaSourceBase implements BunnyStreamSourceInte
       '#options' => $config_list,
       '#default_value' => $configuration['library'],
       '#description' => $this->t('Select the library to use for this Media Type, if you dont have a library configured in your site, you can <a href="@url">create one</a>.', [
-        '@url' => '/admin/structure/bunny-stream-library',
+        '@url' => Url::fromRoute('entity.bunny_stream_library.add_form')->toString(),
       ]),
       '#required' => TRUE,
     ];
