@@ -235,6 +235,9 @@ class BunnyStreamEmbedFormatter extends FormatterBase {
               $url->toString(),
               $this->getSetting('time'),
               $video_id,
+              // @fixme token authentication key is leaked into page HTML.
+              // Lazy builder arguments are serialised into the placeholder
+              // ID that is printed in the page markup.
               $token_auth,
               $this->getSetting('allow_fullscreen'),
             ],
