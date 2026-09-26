@@ -104,10 +104,9 @@ class BunnyLogController extends ControllerBase {
       ->execute();
 
     foreach ($result as $register) {
-      $status = (string) WebhookStates::STATES[$register->status];
       $rows[] = [
         'data' => [
-          $this->t($status),
+          WebhookStates::from($register->status)->label(),
           $this->dateFormatter->format($register->timestamp, 'short'),
           $register->video,
           $register->library,

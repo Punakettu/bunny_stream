@@ -36,7 +36,11 @@ class BunnyLoggerFilterForm extends FormBase {
     $form['filters']['status'] = [
       '#title' => $this->t('Status'),
       '#type' => 'select',
-      '#options' => WebhookStates::STATES,
+      '#options' => array_column(
+        array_map(static fn (WebhookStates $state) => [$state->value, $state->label()], WebhookStates::cases()),
+        1,
+        0,
+      ),
       '#default_value' => $session_filters['status'] ?? '',
     ];
 
