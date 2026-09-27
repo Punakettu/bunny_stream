@@ -66,8 +66,8 @@ jobs:
       matrix:
         include:
           # Lowest supported, see core_version_requirement in the info file.
-          - drupal: '~11.2.0'
-            php: '8.3'
+          - drupal: '~11.4.0'
+            php: '8.4'
           - drupal: '^11'
             php: '8.5'
     env:
