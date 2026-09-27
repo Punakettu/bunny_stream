@@ -124,7 +124,7 @@ final class UploadControllerTest extends KernelTestBase {
     );
 
     $this->assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
-    $this->assertSame(Response::HTTP_FORBIDDEN, $this->get('entity.media.bunny_stream_upload', ['media' => $this->media->id()]));
+    $this->assertSame(Response::HTTP_FORBIDDEN, $this->get('entity.media.bunny_stream_upload', ['media' => $this->media->id()])->getStatusCode());
   }
 
   /**

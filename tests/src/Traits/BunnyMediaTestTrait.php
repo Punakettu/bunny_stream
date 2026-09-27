@@ -67,7 +67,7 @@ trait BunnyMediaTestTrait {
    * Gets the name of the source field.
    */
   protected function getSourceFieldName(): string {
-    return $this->mediaType->getSource()?->getSourceFieldDefinition($this->mediaType)->getName();
+    return $this->mediaType->getSource()->getSourceFieldDefinition($this->mediaType)->getName();
   }
 
   /**

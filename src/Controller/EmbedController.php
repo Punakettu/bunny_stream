@@ -13,6 +13,7 @@ use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Access\AccessResultInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\media\MediaInterface;
+use Drupal\media\MediaTypeInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -66,7 +67,9 @@ final class EmbedController extends ControllerBase {
     $query['token'] = $library->createEmbedToken($videoId, $expires);
     $query['expires'] = $expires;
 
-    $sourceField = $source->getSourceFieldDefinition($media->getBundleEntity());
+    $mediaType = $media->getBundleEntity();
+    assert($mediaType instanceof MediaTypeInterface);
+    $sourceField = $source->getSourceFieldDefinition($mediaType);
 
     foreach ($media->get($sourceField->getName()) as $item) {
       assert($item instanceof BunnyStreamVideoItem);
