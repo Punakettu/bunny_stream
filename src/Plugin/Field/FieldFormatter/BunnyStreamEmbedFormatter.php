@@ -145,7 +145,7 @@ class BunnyStreamEmbedFormatter extends FormatterBase {
     $form['time'] = [
       '#type' => 'select',
       '#title' => $this->t('Expiration time'),
-      '#description' => $this->t('Chose the time to expire the video, this value will be used only if token authentication is set on library configuration.'),
+      '#description' => $this->t('Choose the time to expire the video, this value will be used only if token authentication is set on library configuration.'),
       '#default_value' => $this->getSetting('time') ?? 43200,
       '#options' => array_map([$this->dateFormatter, 'formatInterval'], array_combine($options, $options)),
     ];

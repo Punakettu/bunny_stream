@@ -5,7 +5,6 @@
  * Hooks for install and uninstall.
  */
 
-use Drupal\Core\Entity\Sql\DefaultTableMapping;
 use Drupal\Core\File\FileExists;
 use Drupal\Core\File\FileSystemInterface;
 
@@ -20,6 +19,14 @@ function bunny_stream_install(): void {
   $fileSystem = \Drupal::service(FileSystemInterface::class);
   $fileSystem->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS);
   $fileSystem->copy($path, $directory . '/bunny.png', FileExists::Replace);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function bunny_stream_uninstall(): void {
+  $directory = \Drupal::config('media.settings')->get('icon_base_uri');
+  \Drupal::service(FileSystemInterface::class)->delete($directory . '/bunny.png');
 }
 
 /**

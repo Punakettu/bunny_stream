@@ -2,10 +2,11 @@
     "name": "drupal/bunny_stream",
     "type": "drupal-module",
     "description": "Drupal Media integration with the Bunny.net Stream service.",
-    "homepage": "https://drupal.org/project/commerce",
+    "homepage": "https://www.drupal.org/project/bunny_stream",
     "license": "GPL-2.0-or-later",
     "require": {
-        "php": "^8.3"
+        "php": "^8.3",
+        "drupal/core": "^11.2"
     },
     "minimum-stability": "stable"
 }

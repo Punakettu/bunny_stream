@@ -60,7 +60,7 @@ Without the local library, the JavaScript is loaded from jsDelivr CDN.
 
 2. Configure the new library Administration > Structure > Bunny Stream Library
    (/admin/structure/bunny_stream_library/add), fill the fields. If the library
-   is private, add the "Token Authentication Key" and chose the time to expire
+   is private, add the "Token Authentication Key" and choose the time to expire
    the security token.
 
 3. Go to Administration > Structure > Media Types and create one new Media type

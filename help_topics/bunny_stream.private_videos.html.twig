@@ -8,12 +8,13 @@ related:
 {% trans %}Bunny library{% endtrans %}
 {% endset %}
 {% set layout_link = render_var(help_route_link(layout_link_text, 'entity.bunny_stream_library.collection')) %}
+{% set configure_topic = render_var(help_topic_link('bunny_stream.config')) %}
 <h2>{% trans %}Goal{% endtrans %}</h2>
 <p>{% trans %}Embed private videos in Drupal. {% endtrans %}</p>
 <h2>{% trans %}Private videos{% endtrans %}</h2>
 <p>{% trans %}By default all the videos in Bunny are public, but you can create a private library and all the videos of that library will be private. Let's learn to embed private videos in Drupal.{% endtrans %}</p>
 <h2>{% trans %}Notice{% endtrans %}</h2>
-<p>{% trans %}Before follow this steps, please, configure library in Drupal and in Media following configuration steps: {{ configure_topic }}{% endtrans %}</p>
+<p>{% trans %}Before following these steps, configure the library and the media type as described in {{ configure_topic }}{% endtrans %}</p>
 <h2>{% trans %}Steps{% endtrans %}</h2>
 <ol>
   <li>{% trans %}In your Bunny dashboard go to Stream -> Your Library -> Security.{% endtrans %}</li>
