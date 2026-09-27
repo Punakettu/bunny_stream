@@ -11,9 +11,8 @@ CONTENTS OF THIS FILE
 
 # INTRODUCTION
 
-
-This module is to integrate [Bunny.net Stream service](https://bunny.net/stream/)
-with Media module to use uploaded videos in Bunny inside Drupal.
+This module integrates the [Bunny.net Stream service](https://bunny.net/stream/)
+with the Media module, so that videos hosted in Bunny can be used in Drupal.
 
 The module provides new Media source plugin and some field formatters to embed
 the videos or just list the links.
@@ -43,6 +42,16 @@ $ composer require symfony/property-access
 * Install as you would normally install a contributed Drupal module. Visit
   https://www.drupal.org/node/1897420 for further information.
 
+The uploader needs the [tus-js-client](https://github.com/tus/tus-js-client)
+library. With Composer, we recommend
+[Asset Packagist](https://www.drupal.org/docs/develop/using-composer/manage-dependencies#third-party-libraries)
+repository.
+
+```
+composer require npm-asset/tus-js-client:^4.3
+```
+
+Without the local library, the JavaScript is loaded from jsDelivr CDN.
 
 # CONFIGURATION
 

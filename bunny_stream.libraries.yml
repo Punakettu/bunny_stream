@@ -1,0 +1,9 @@
+tus-js-client:
+  remote: https://github.com/tus/tus-js-client
+  version: '4.3'
+  license:
+    name: MIT
+    url: https://github.com/tus/tus-js-client/blob/main/LICENSE
+    gpl-compatible: true
+  js:
+    /libraries/tus-js-client/dist/tus.min.js: { minified: true }
