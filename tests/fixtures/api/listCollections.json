@@ -1,0 +1,25 @@
+{
+  "totalItems": 2,
+  "currentPage": 1,
+  "itemsPerPage": 100,
+  "items": [
+    {
+      "videoLibraryId": 12345,
+      "guid": "collection-guid",
+      "name": "Kissat",
+      "videoCount": 2,
+      "totalSize": 209715200,
+      "previewVideoIds": "video-guid,other-video-guid",
+      "previewImageUrls": null
+    },
+    {
+      "videoLibraryId": 12345,
+      "guid": "other-collection-guid",
+      "name": "Koirat",
+      "videoCount": 0,
+      "totalSize": 0,
+      "previewVideoIds": null,
+      "previewImageUrls": null
+    }
+  ]
+}

@@ -15,6 +15,18 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 trait HttpKernelTestTrait {
 
   /**
+   * Gets the given route.
+   *
+   * @param string $route
+   *   Drupal route.
+   * @param array<string, mixed> $parameters
+   *   Route parameters.
+   */
+  private function get(string $route, array $parameters = []): Response {
+    return $this->processRequest(Request::create(Url::fromRoute($route, $parameters)->toString()));
+  }
+
+  /**
    * Posts the given route.
    *
    * @param string $route
@@ -23,10 +35,12 @@ trait HttpKernelTestTrait {
    *   Body payload.
    * @param array<string, string> $headers
    *   Request headers.
+   * @param array<string, mixed> $parameters
+   *   Route parameters.
    */
-  private function post(string $route, array $body, array $headers = []): Response {
+  private function post(string $route, array $body = [], array $headers = [], array $parameters = []): Response {
     $request = Request::create(
-      Url::fromRoute($route)->toString(),
+      Url::fromRoute($route, $parameters)->toString(),
       'POST',
       content: json_encode($body, JSON_THROW_ON_ERROR),
     );

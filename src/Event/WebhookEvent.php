@@ -2,6 +2,7 @@
 
 namespace Drupal\bunny_stream\Event;
 
+use Drupal\bunny_stream\Bunny\DTO\Webhook;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
@@ -12,20 +13,20 @@ class WebhookEvent extends Event {
   /**
    * Constructor of the event.
    *
-   * @param array $payload
-   *   Payload of the webhook from bunny.net.
+   * @param \Drupal\bunny_stream\Bunny\DTO\Webhook $payload
+   *   The webhook payload from bunny.net.
    */
   public function __construct(
-    protected array $payload,
+    protected Webhook $payload,
   ) {}
 
   /**
-   * Get the payload of the webhook.
+   * Get the webhook payload.
    *
-   * @return array
-   *   Payload of the event.
+   * @return \Drupal\bunny_stream\Bunny\DTO\Webhook
+   *   The webhook payload.
    */
-  public function getPayload(): array {
+  public function getPayload(): Webhook {
     return $this->payload;
   }
 

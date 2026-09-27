@@ -2,3 +2,9 @@ entity.bunny_stream_library.collection:
   title: 'Libraries'
   route_name: entity.bunny_stream_library.collection
   base_route: entity.bunny_stream_library.collection
+
+entity.media.bunny_stream_upload:
+  title: 'Upload video'
+  route_name: entity.media.bunny_stream_upload
+  base_route: entity.media.canonical
+  weight: 5

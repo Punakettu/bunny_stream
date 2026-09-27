@@ -30,4 +30,18 @@ class BunnyStreamConstraint extends SymfonyConstraint {
    */
   public string $invalidIdMessage = 'The given ID is not valid video.';
 
+  /**
+   * The error message if a pending upload is set on an existing media.
+   *
+   * @var string
+   */
+  public string $pendingUploadNotAllowedMessage = 'Only a new media can create a video for upload.';
+
+  /**
+   * The error message if the media source does not allow uploads.
+   *
+   * @var string
+   */
+  public string $uploadNotAllowedMessage = 'Video uploads are not allowed for this media type.';
+
 }

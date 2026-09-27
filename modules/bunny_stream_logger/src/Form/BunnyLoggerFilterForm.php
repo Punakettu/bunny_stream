@@ -2,7 +2,7 @@
 
 namespace Drupal\bunny_stream_logger\Form;
 
-use Drupal\bunny_stream\WebhookStates;
+use Drupal\bunny_stream\Bunny\DTO\VideoStates;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 
@@ -37,7 +37,7 @@ class BunnyLoggerFilterForm extends FormBase {
       '#title' => $this->t('Status'),
       '#type' => 'select',
       '#options' => array_column(
-        array_map(static fn (WebhookStates $state) => [$state->value, $state->label()], WebhookStates::cases()),
+        array_map(static fn (VideoStates $state) => [$state->value, $state->label()], VideoStates::cases()),
         1,
         0,
       ),

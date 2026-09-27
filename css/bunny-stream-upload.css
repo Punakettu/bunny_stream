@@ -1,0 +1,14 @@
+.bunny-stream-upload {
+  display: grid;
+  gap: 0.75rem;
+  justify-items: start;
+  max-width: 40rem;
+}
+
+.bunny-stream-upload__progress {
+  width: 100%;
+}
+
+.bunny-stream-upload__status[data-type="error"] {
+  color: #d72222;
+}

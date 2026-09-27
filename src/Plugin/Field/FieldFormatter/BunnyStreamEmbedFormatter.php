@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Drupal\bunny_stream\Plugin\Field\FieldFormatter;
 
+use Drupal\bunny_stream\BunnyEmbedTrait;
 use Drupal\bunny_stream\BunnyStreamSourceInterface;
-use Drupal\bunny_stream\LazyEmbedLoader;
+use Drupal\bunny_stream\EmbedUrlGenerator;
+use Drupal\bunny_stream\Plugin\media\Source\BunnyStreamSource;
 use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\Attribute\FieldFormatter;
@@ -13,9 +15,10 @@ use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FormatterBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Htmx\Htmx;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
-use Drupal\Core\Url;
 use Drupal\media\Entity\MediaType;
+use Drupal\media\MediaInterface;
 
 /**
  * Plugin implementation of the 'Bunny Stream' formatter.
@@ -23,14 +26,16 @@ use Drupal\media\Entity\MediaType;
  * This plugin never should be used out of Media, loads information
  * of Media Source to obtain required data.
  *
- * @extends \Drupal\Core\Field\FormatterBase<\Drupal\Core\Field\FieldItemListInterface<\Drupal\Core\Field\Plugin\Field\FieldType\StringItem>>
+ * @extends \Drupal\Core\Field\FormatterBase<\Drupal\Core\Field\FieldItemListInterface<\Drupal\bunny_stream\Plugin\Field\FieldType\BunnyStreamVideoItem>>
  */
 #[FieldFormatter(
   id: 'bunny_stream_embed',
   label: new TranslatableMarkup('Bunny Stream Embed'),
-  field_types: ['string'],
+  field_types: ['bunny_stream_video'],
 )]
 class BunnyStreamEmbedFormatter extends FormatterBase {
+
+  use BunnyEmbedTrait;
 
   /**
    * Constructor for the plugin.
@@ -53,6 +58,8 @@ class BunnyStreamEmbedFormatter extends FormatterBase {
    *   The entity_type.manager service.
    * @param \Drupal\Core\Datetime\DateFormatterInterface $dateFormatter
    *   The date.formatter service.
+   * @param \Drupal\bunny_stream\EmbedUrlGenerator $embedUrlGenerator
+   *   The embed URL generator.
    */
   public function __construct(
     $plugin_id,
@@ -64,14 +71,17 @@ class BunnyStreamEmbedFormatter extends FormatterBase {
     array $third_party_settings,
     protected EntityTypeManagerInterface $entityTypeManager,
     protected DateFormatterInterface $dateFormatter,
+    protected EmbedUrlGenerator $embedUrlGenerator,
   ) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
   }
 
   /**
    * {@inheritdoc}
+   *
+   * @phsptan-return FieldSettings
    */
-  public static function defaultSettings() {
+  public static function defaultSettings(): array {
     return [
       'responsive' => TRUE,
       'autoplay' => FALSE,
@@ -183,7 +193,7 @@ class BunnyStreamEmbedFormatter extends FormatterBase {
   /**
    * {@inheritdoc}
    *
-   * @param \Drupal\Core\Field\FieldItemListInterface<\Drupal\Core\Field\Plugin\Field\FieldType\StringItem> $items
+   * @param \Drupal\Core\Field\FieldItemListInterface<\Drupal\bunny_stream\Plugin\Field\FieldType\BunnyStreamVideoItem> $items
    *   The field values to be rendered.
    * @param string $langcode
    *   The language that should be used to render the field.
@@ -191,71 +201,51 @@ class BunnyStreamEmbedFormatter extends FormatterBase {
   public function viewElements(FieldItemListInterface $items, $langcode): array {
     $element = [];
 
-    $field_definition = $items->getFieldDefinition();
-    $bundle = $field_definition->getTargetBundle();
-    /** @var \Drupal\media\Entity\MediaType $media_entity */
-    $media_entity = $this->entityTypeManager->getStorage('media_type')->load($bundle);
+    $media = $items->getEntity();
+    $source = $media instanceof MediaInterface ? $media->getSource() : NULL;
+    $library = $source instanceof BunnyStreamSource ? $source->getLibrary() : NULL;
+    if (!$library) {
+      return $element;
+    }
 
-    /** @var \Drupal\bunny_stream\Plugin\media\Source\BunnyStreamSource $source */
-    $source = $media_entity->getSource();
-    /** @var \Drupal\bunny_stream\Entity\BunnyStreamLibrary $library */
-    $library = $source->getLibrary();
-    $library_id = $library->id();
+    $settings = [
+      'responsive' => $this->getSetting('responsive') ? 'true' : 'false',
+      'autoplay' => $this->getSetting('autoplay') ? 'true' : 'false',
+      'loop' => $this->getSetting('loop') ? 'true' : 'false',
+      'muted' => $this->getSetting('muted') ? 'true' : 'false',
+      'preload' => $this->getSetting('preload') ? 'true' : 'false',
+    ];
 
     foreach ($items as $delta => $item) {
-
-      $video_id = $item->value;
-      $video_url = strtr(
-        "//iframe.mediadelivery.net/embed/{library_id}/{video_id}",
-        ["{library_id}" => $library_id, "{video_id}" => $video_id]
-      );
-
-      $url = Url::fromUri($video_url);
-
-      $settings = [
-        'responsive' => $this->getSetting('responsive') ? 'true' : 'false',
-        'autoplay' => $this->getSetting('autoplay') ? 'true' : 'false',
-        'loop' => $this->getSetting('loop') ? 'true' : 'false',
-        'muted' => $this->getSetting('muted') ? 'true' : 'false',
-        'preload' => $this->getSetting('preload') ? 'true' : 'false',
-      ];
-
-      $token_auth = $library->get('token_authentication_key');
-
-      if (!empty($token_auth)) {
-
-        $url->setOptions(['query' => $settings]);
-
-        // We can't cache videos with expiration time, so let's use lazy_builder
-        // to avoid cache.
+      if ($library->isTokenAuthenticationEnabled()) {
+        // The token expires, so it is fetched separately with HTMX to keep
+        // the page cacheable.
         $render = [
-          '#lazy_builder' => [
-            LazyEmbedLoader::class . ':lazyLoad',
-            [
-              $url->toString(),
-              $this->getSetting('time'),
-              $video_id,
-              // @fixme token authentication key is leaked into page HTML.
-              // Lazy builder arguments are serialised into the placeholder
-              // ID that is printed in the page markup.
-              $token_auth,
-              $this->getSetting('allow_fullscreen'),
-            ],
-          ],
-          '#create_placeholder' => TRUE,
-          '#lazy_builder_preview' => [
-            '#attributes' => ['id' => 'toolbar-link-preview'],
-            '#type' => 'container',
-            '#markup' => 'Loading video...',
-          ],
+          '#theme' => 'bunny_embed',
+          '#width' => $item->width,
+          '#height' => $item->height,
+          '#cache' => ['tags' => $library->getCacheTags()],
         ];
+        if (!$media->isNew()) {
+          $url = $this->embedUrlGenerator->getUrl($media, $settings + [
+            EmbedUrlGenerator::FULLSCREEN_OPTION => $this->getSetting('allow_fullscreen') ? '1' : '0',
+            EmbedUrlGenerator::LIFETIME_OPTION => (string) $this->getSetting('time'),
+          ]);
+
+          // Signed embed URLs have expiration date. We render a
+          // placeholder and fetch the signed URL with Htmx, so
+          // the page stays cacheable.
+          (new Htmx())
+            ->get($url)
+            ->trigger('revealed')
+            ->select('.bunny-embed')
+            ->swap('outerHTML')
+            ->applyTo($render);
+        }
       }
       else {
-        $render = [
-          '#theme' => "bunny_embed",
-          '#url' => $url->toString(),
-          '#options' => ['allow_fullscreen' => $this->getSetting('allow_fullscreen')],
-        ];
+        $render = $this->buildBunnyEmbed($library, $media, $item, $settings, (bool) $this->getSetting('allow_fullscreen'));
+        $render['#cache']['tags'] = $library->getCacheTags();
       }
 
       $element[$delta] = $render;

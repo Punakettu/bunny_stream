@@ -39,3 +39,50 @@ bunny_stream.webhook:
     _custom_access: '\Drupal\bunny_stream\Controller\WebhookController::access'
   options:
     no_cache: TRUE
+
+entity.media.bunny_stream_upload:
+  path: '/media/{media}/upload'
+  defaults:
+    _controller: '\Drupal\bunny_stream\Controller\UploadController::page'
+    _title: 'Upload video'
+  requirements:
+    _entity_access: 'media.update'
+    _custom_access: '\Drupal\bunny_stream\Controller\UploadController::access'
+    media: \d+
+  options:
+    _admin_route: TRUE
+    parameters:
+      media:
+        type: entity:media
+
+bunny_stream.media_upload_signature:
+  path: '/media/{media}/upload/signature'
+  defaults:
+    _controller: '\Drupal\bunny_stream\Controller\UploadController::signature'
+  methods: ['POST']
+  requirements:
+    _entity_access: 'media.update'
+    _custom_access: '\Drupal\bunny_stream\Controller\UploadController::access'
+    _csrf_request_header_token: 'TRUE'
+    media: \d+
+  options:
+    no_cache: TRUE
+    parameters:
+      media:
+        type: entity:media
+
+bunny_stream.embed:
+  path: '/bunny-stream/embed/{media}'
+  defaults:
+    _controller: '\Drupal\bunny_stream\Controller\EmbedController::embed'
+  methods: ['GET']
+  requirements:
+    _entity_access: 'media.view'
+    _custom_access: '\Drupal\bunny_stream\Controller\EmbedController::access'
+    media: \d+
+  options:
+    _htmx_route: TRUE
+    no_cache: TRUE
+    parameters:
+      media:
+        type: entity:media

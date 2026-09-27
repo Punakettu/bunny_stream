@@ -2,7 +2,7 @@
 
 namespace Drupal\bunny_stream_logger\Controller;
 
-use Drupal\bunny_stream\WebhookStates;
+use Drupal\bunny_stream\Bunny\DTO\VideoStates;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Database\Query\PagerSelectExtender;
@@ -96,7 +96,7 @@ class BunnyLogController extends ControllerBase {
     foreach ($result as $register) {
       $rows[] = [
         'data' => [
-          WebhookStates::from($register->status)->label(),
+          VideoStates::from($register->status)->label(),
           $this->dateFormatter->format($register->timestamp, 'short'),
           $register->video,
           $register->library,

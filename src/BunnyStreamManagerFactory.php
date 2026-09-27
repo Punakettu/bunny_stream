@@ -2,6 +2,7 @@
 
 namespace Drupal\bunny_stream;
 
+use Drupal\bunny_stream\Bunny\VideoManager;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use GuzzleHttp\ClientInterface;
 
@@ -10,14 +11,6 @@ use GuzzleHttp\ClientInterface;
  */
 class BunnyStreamManagerFactory implements BunnyStreamManagerFactoryInterface {
 
-  /**
-   * Constructor of the factory service.
-   *
-   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
-   *   The entity_type.manager service.
-   * @param \GuzzleHttp\ClientInterface $client
-   *   The http_client service.
-   */
   public function __construct(
     protected EntityTypeManagerInterface $entityTypeManager,
     protected ClientInterface $client,
@@ -26,11 +19,11 @@ class BunnyStreamManagerFactory implements BunnyStreamManagerFactoryInterface {
   /**
    * {@inheritDoc}
    */
-  public function getVideoManager(string $config_id): ?VideoManager {
-    $config = $this->loadConfig($config_id);
+  public function getVideoManager(string $configId): ?VideoManager {
+    $config = $this->loadConfig($configId);
 
     if (!is_null($config)) {
-      return new VideoManager($this->client, $config->id(), $config->get('api_key'));
+      return new VideoManager($this->client, $config);
     }
 
     return NULL;
@@ -39,14 +32,11 @@ class BunnyStreamManagerFactory implements BunnyStreamManagerFactoryInterface {
   /**
    * Loads the configuration entity with the given ID.
    *
-   * @param string $config_id
+   * @param string $configId
    *   The id of the configuration entity to load.
-   *
-   * @return \Drupal\bunny_stream\BunnyStreamLibraryInterface|null
-   *   The configuration entity.
    */
-  private function loadConfig(string $config_id): ?BunnyStreamLibraryInterface {
-    $entity = $this->entityTypeManager->getStorage('bunny_stream_library')->load($config_id);
+  private function loadConfig(string $configId): ?BunnyStreamLibraryInterface {
+    $entity = $this->entityTypeManager->getStorage('bunny_stream_library')->load($configId);
     assert(!$entity || $entity instanceof BunnyStreamLibraryInterface);
     return $entity;
   }

@@ -1,0 +1,12 @@
+{
+  "videoLibraryId": 12345,
+  "guid": "collection-guid",
+  "name": "Kissat",
+  "videoCount": 2,
+  "totalSize": 209715200,
+  "previewVideoIds": "video-guid,other-video-guid",
+  "previewImageUrls": [
+    "https://vz-12345.b-cdn.net/video-guid/thumbnail.jpg",
+    "https://vz-12345.b-cdn.net/other-video-guid/thumbnail.jpg"
+  ]
+}

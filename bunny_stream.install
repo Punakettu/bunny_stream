@@ -5,20 +5,21 @@
  * Hooks for install and uninstall.
  */
 
+use Drupal\Core\Entity\Sql\DefaultTableMapping;
+use Drupal\Core\File\FileExists;
 use Drupal\Core\File\FileSystemInterface;
 
 /**
  * Implements hook_install().
  */
 function bunny_stream_install(): void {
-
   $path = \Drupal::service('extension.list.module')->getPath('bunny_stream') . '/images/icon/no-thumbnail.png';
 
-  $directory = 'public://bunny_stream_thumbnails/';
+  $directory = \Drupal::config('media.settings')->get('icon_base_uri');
 
   $fileSystem = \Drupal::service(FileSystemInterface::class);
   $fileSystem->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS);
-  $fileSystem->copy($path, $directory . 'bunny-thumbnail.png');
+  $fileSystem->copy($path, $directory . '/bunny.png', FileExists::Replace);
 }
 
 /**

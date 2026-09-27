@@ -10,7 +10,8 @@ use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Promise\PromiseInterface;
+use GuzzleHttp\Promise\Utils;
 
 /**
  * Bunny_stream_library form.
@@ -73,22 +74,32 @@ final class BunnyStreamLibraryForm extends EntityForm {
       '#description' => $this->t('The hostname to use to link the videos on the site. You can get it from Stream -> Library -> API.'),
     ];
 
-    $form['api_key'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('API key'),
-      '#maxlength' => 255,
-      '#default_value' => $this->entity->get('api_key'),
-      '#required' => TRUE,
-      '#description' => $this->t('The API key for the request to Bunny API. You can get it from Stream -> Library -> API.'),
-    ];
-
     $form['read_only_api_key'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Read-only API key'),
       '#maxlength' => 255,
       '#default_value' => $this->entity->get('read_only_api_key'),
       '#required' => TRUE,
-      '#description' => $this->t('Bunny signs webhook requests with this key. You can get it from Stream -> Library -> API.'),
+      '#description' => $this->t('Used to read videos from Bunny API. Bunny also signs webhook requests with this key. You can get it from Stream -> Library -> API.'),
+    ];
+
+    $form['allow_upload'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Allow video uploads'),
+      '#default_value' => $this->entity->get('allow_upload'),
+      '#description' => $this->t('Allow users to upload files from Drupal. When disabled, videos can only be added with the UUID.'),
+    ];
+
+    $form['api_key'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('API key'),
+      '#maxlength' => 255,
+      '#default_value' => $this->entity->get('api_key'),
+      '#description' => $this->t('The read/write API key, used to create and upload videos. You can get it from Stream -> Library -> API.'),
+      '#states' => [
+        'visible' => [':input[name="allow_upload"]' => ['checked' => TRUE]],
+        'required' => [':input[name="allow_upload"]' => ['checked' => TRUE]],
+      ],
     ];
 
     $form['webhook_url'] = [
@@ -124,31 +135,44 @@ final class BunnyStreamLibraryForm extends EntityForm {
   public function validateForm(array &$form, FormStateInterface $form_state): void {
     parent::validateForm($form, $form_state);
 
-    $library_id = $form_state->getValue('id');
-    $api_key = $form_state->getValue('api_key');
+    $library_id = (string) $form_state->getValue('id');
+    $keys = ['read_only_api_key' => $this->t('Read-only API key')];
 
-    $error_message = $this->t('Please, check that API Key is correct and library ID @library_id exists.',
-      [
-        '@library_id' => $library_id,
-      ]
-    );
+    if ($form_state->getValue('allow_upload')) {
+      if (mb_trim((string) $form_state->getValue('api_key')) === '') {
+        $form_state->setErrorByName('api_key', $this->t('The API key is required to allow video uploads.'));
+      }
+      else {
+        $keys['api_key'] = $this->t('API key');
+      }
+    }
+    else {
+      // A library without uploads never needs the read/write key.
+      $form_state->setValue('api_key', NULL);
+    }
 
-    try {
-      $response = $this->client->request('GET', 'https://video.bunnycdn.com/library/' . $library_id . '/videos', [
+    // Empty required fields already have an error.
+    $keys = array_filter($keys, fn (string $name) => (string) $form_state->getValue($name) !== '', ARRAY_FILTER_USE_KEY);
+
+    // Check the keys concurrently.
+    $promises = [];
+    foreach (array_keys($keys) as $name) {
+      $promises[$name] = $this->client->requestAsync('GET', 'https://video.bunnycdn.com/library/' . $library_id . '/videos', [
         'headers' => [
-          'AccessKey' => $api_key,
+          'AccessKey' => (string) $form_state->getValue($name),
           'accept' => 'application/json',
         ],
       ]);
+    }
 
-      if ($response->getStatusCode() !== 200) {
-        $form_state->setError($form, (string) $error_message);
+    foreach (Utils::settle($promises)->wait() as $name => $result) {
+      if ($result['state'] !== PromiseInterface::FULFILLED || $result['value']->getStatusCode() !== 200) {
+        $form_state->setErrorByName($name, $this->t('Please, check that %key is correct and library ID @library_id exists.', [
+          '%key' => $keys[$name],
+          '@library_id' => $library_id,
+        ]));
       }
     }
-    catch (GuzzleException) {
-      $form_state->setError($form, (string) $error_message);
-    }
-
   }
 
   /**

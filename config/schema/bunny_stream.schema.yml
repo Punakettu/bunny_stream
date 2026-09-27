@@ -11,9 +11,13 @@ bunny_stream.bunny_stream_library.*:
     description:
       type: text
       label: 'Description'
+    allow_upload:
+      type: boolean
+      label: 'Allow video uploads'
     api_key:
       type: string
       label: Api Key
+      nullable: true
       constraints:
         Uuid:
           versions: 4
@@ -75,3 +79,35 @@ media.source.bunny_stream:
     library:
       type: string
       label: 'Bunny Stream library ID'
+
+field.widget.settings.bunny_stream_textfield:
+  type: mapping
+  label: 'Bunny Stream widget settings'
+  mapping:
+    mode:
+      type: string
+      label: 'Widget mode for new media'
+      constraints:
+        Choice:
+          - upload
+          - existing
+
+field.storage_settings.bunny_stream_video:
+  type: field.storage_settings.string
+  label: 'Bunny Stream video storage settings'
+
+field.value.bunny_stream_video:
+  type: mapping
+  label: 'Default value'
+  mapping:
+    value:
+      type: string
+      label: 'Video ID'
+    width:
+      type: integer
+      label: 'Width'
+      nullable: true
+    height:
+      type: integer
+      label: 'Height'
+      nullable: true

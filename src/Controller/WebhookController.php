@@ -3,6 +3,7 @@
 namespace Drupal\bunny_stream\Controller;
 
 use Drupal\bunny_stream\BunnyStreamLibraryInterface;
+use Drupal\bunny_stream\Bunny\DTO\Webhook;
 use Drupal\bunny_stream\Event\WebhookEvent;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Access\AccessResultInterface;
@@ -54,12 +55,17 @@ class WebhookController extends ControllerBase {
    *   The current request to get the payload.
    *
    * @return \Symfony\Component\HttpFoundation\Response
-   *   Return normal empty response for a 200.
+   *   Empty response, 400 if the payload is malformed.
    */
   public function webhook(Request $request): Response {
-    $post = $request->getPayload()->all();
-    $event = new WebhookEvent($post);
-    $this->eventDispatcher->dispatch($event);
+    try {
+      $webhook = Webhook::fromPayload($request->getPayload());
+    }
+    catch (\InvalidArgumentException) {
+      return new Response(status: Response::HTTP_BAD_REQUEST);
+    }
+
+    $this->eventDispatcher->dispatch(new WebhookEvent($webhook));
 
     return new Response();
   }

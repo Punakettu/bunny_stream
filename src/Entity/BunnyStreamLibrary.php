@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Drupal\bunny_stream\Entity;
 
 use Drupal\bunny_stream\BunnyStreamLibraryInterface;
-use Drupal\bunny_stream\BunnyStreamLibraryListBuilder;
+use Drupal\bunny_stream\Entity\Handlers\BunnyStreamLibraryListBuilder;
 use Drupal\bunny_stream\Form\BunnyStreamLibraryForm;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
 use Drupal\Core\Entity\Attribute\ConfigEntityType;
@@ -50,6 +50,7 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
     'id',
     'label',
     'description',
+    'allow_upload',
     'api_key',
     'cdn_hostname',
     'pull_zone',
@@ -75,7 +76,12 @@ final class BunnyStreamLibrary extends ConfigEntityBase implements BunnyStreamLi
   protected ?string $description = NULL;
 
   /**
-   * The API key to access to this library in Bunny stream.
+   * Whether videos can be created and uploaded from Drupal.
+   */
+  protected bool $allow_upload = TRUE;
+
+  /**
+   * The read/write API key, used only to create and upload videos.
    */
   protected ?string $api_key = NULL;
 
@@ -95,7 +101,7 @@ final class BunnyStreamLibrary extends ConfigEntityBase implements BunnyStreamLi
   protected ?string $token_authentication_key = NULL;
 
   /**
-   * The read-only API key, used to verify webhook signatures.
+   * The read-only API key, used to read videos and verify webhook signatures.
    */
   protected ?string $read_only_api_key = NULL;
 
@@ -106,11 +112,44 @@ final class BunnyStreamLibrary extends ConfigEntityBase implements BunnyStreamLi
     $key = $this->get('read_only_api_key');
     $signature = strtolower($signature);
 
-    return
-      $version === 'v1' &&
+    return $version === 'v1' &&
       $algorithm === 'hmac-sha256' &&
       !empty($key) &&
       hash_equals(hash_hmac('sha256', $content, $key), $signature);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public function isUploadAllowed(): bool {
+    return $this->allow_upload && !empty($this->api_key);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public function createUploadSignature(string $video_id, int $expire): string {
+    if (!$this->isUploadAllowed()) {
+      throw new \LogicException('Uploads are not allowed for this library.');
+    }
+    return hash('sha256', $this->id() . $this->get('api_key') . $expire . $video_id);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public function isTokenAuthenticationEnabled(): bool {
+    return !empty($this->token_authentication_key);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public function createEmbedToken(string $video_id, int $expires): string {
+    if (!$this->isTokenAuthenticationEnabled()) {
+      throw new \LogicException('Token authentication is not enabled for this library.');
+    }
+    return hash('sha256', $this->token_authentication_key . $video_id . $expires);
   }
 
 }

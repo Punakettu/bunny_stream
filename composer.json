@@ -5,8 +5,7 @@
     "homepage": "https://drupal.org/project/commerce",
     "license": "GPL-2.0-or-later",
     "require": {
-        "php": "^8.3",
-        "symfony/property-access": "^6.4 || ^7"
+        "php": "^8.3"
     },
     "minimum-stability": "stable"
 }

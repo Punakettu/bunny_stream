@@ -6,13 +6,15 @@ top_level: true
 <p>{% trans %}Bunny Stream is one of the services provided by Bunny.net company. This service allows upload videos and stream them using the CDN that they provide.{% endtrans %}</p>
 <h2>{% trans %}About this module{% endtrans %}</h2>
 <p>{% trans %}This module provides integration to embed public and private videos from Bunny.net using Media integration.{% endtrans %}</p>
-<p>{% trans %}You can create videos in bunny.net, and add to Drupal using the UUID of the video.{% endtrans %}</p>
+<p>{% trans %}You can create videos in bunny.net, and add to Drupal using the UUID of the video. You can also create a video when adding a media, and upload its file on the media's "Upload video" tab after saving. Uploads can be disabled with the "Allow video uploads" setting of the library, in which case only the read-only API key is needed.{% endtrans %}</p>
 <h2>{% trans %}Features{% endtrans %}</h2>
 <ul>
   <li>{% trans %}Embed public and private videos.{% endtrans %}</li>
   <li>{% trans %}Video thumbnail download for public and private videos.{% endtrans %}</li>
   <li>{% trans %}Configuration options for video player from field formatter.{% endtrans %}</li>
   <li>{% trans %}Media library support to create videos.{% endtrans %}</li>
+  <li>{% trans %}Upload video files from Drupal directly to Bunny.net.{% endtrans %}</li>
+  <li>{% trans %}Media metadata and thumbnails are updated when Bunny.net finishes encoding a video.{% endtrans %}</li>
   <li>{% trans %}Support for webhooks.{% endtrans %}</li>
   <li>{% trans %}Log all the status changes of your videos with the submodule "Bunny Stream logger".{% endtrans %}</li>
 </ul>

@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Drupal\bunny_stream;
+namespace Drupal\bunny_stream\Entity\Handlers;
 
+use Drupal\bunny_stream\BunnyStreamLibraryInterface;
 use Drupal\Core\Config\Entity\ConfigEntityListBuilder;
 use Drupal\Core\Entity\EntityInterface;
 
@@ -25,7 +26,7 @@ final class BunnyStreamLibraryListBuilder extends ConfigEntityListBuilder {
    * {@inheritdoc}
    */
   public function buildRow(EntityInterface $entity): array {
-    /** @var \Drupal\bunny_stream\BunnyStreamLibraryInterface $entity */
+    assert($entity instanceof BunnyStreamLibraryInterface);
     $row['label'] = $entity->label();
     $row['id'] = $entity->id();
     return $row + parent::buildRow($entity);

@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Drupal\bunny_stream_logger\EventSubscriber;
 
 use Drupal\bunny_stream\Event\WebhookEvent;
+use Drupal\bunny_stream\EventSubscriber\WebhookSubscriberBase;
 use Drupal\Core\Database\Connection;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Listen the event to insert in the db the evento from webhook.
+ * Listen the webhook events and insert the event data to database.
  */
-final class BunnyStreamLoggerSubscriber implements EventSubscriberInterface {
+final class BunnyStreamLoggerSubscriber extends WebhookSubscriberBase {
 
   /**
    * Constructor for the event subscriber.
@@ -29,27 +29,19 @@ final class BunnyStreamLoggerSubscriber implements EventSubscriberInterface {
    * @param \Drupal\bunny_stream\Event\WebhookEvent $event
    *   Event with the information from webhook.
    */
+  #[\Override]
   public function onWebhook(WebhookEvent $event): void {
-    $payload = $event->getPayload();
+    $webhook = $event->getPayload();
 
     $this->database
       ->insert('bunny_stream_logger')
       ->fields([
-        'status' => $payload['Status'],
-        'library' => $payload['VideoLibraryId'],
-        'video' => $payload['VideoGuid'],
+        'status' => $webhook->status->value,
+        'library' => $webhook->videoLibraryId,
+        'video' => $webhook->videoGuid,
         'timestamp' => time(),
       ])
       ->execute();
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function getSubscribedEvents(): array {
-    return [
-      WebhookEvent::class => ['onWebhook'],
-    ];
   }
 
 }

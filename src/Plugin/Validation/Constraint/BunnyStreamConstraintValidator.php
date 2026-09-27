@@ -2,11 +2,12 @@
 
 namespace Drupal\bunny_stream\Plugin\Validation\Constraint;
 
+use Drupal\bunny_stream\Bunny\BunnyException;
 use Drupal\bunny_stream\BunnyStreamManagerFactoryInterface;
+use Drupal\bunny_stream\BunnyStreamSourceInterface;
 use Drupal\bunny_stream\Plugin\media\Source\BunnyStreamSource;
 use Drupal\Core\DependencyInjection\AutowireTrait;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
-
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
@@ -32,7 +33,6 @@ class BunnyStreamConstraintValidator extends ConstraintValidator implements Cont
    * {@inheritdoc}
    */
   public function validate(mixed $value, Constraint $constraint): void {
-
     if (!$constraint instanceof BunnyStreamConstraint) {
       throw new UnexpectedTypeException($constraint, __NAMESPACE__ . '\EntityExistsConstraint');
     }
@@ -51,18 +51,28 @@ class BunnyStreamConstraintValidator extends ConstraintValidator implements Cont
       return;
     }
 
-    /** @var \Drupal\bunny_stream\BunnyStreamLibraryInterface $library */
     $library = $source->getLibrary();
 
-    /** @var \Drupal\bunny_stream\VideoManager|null $videoManager */
-    $videoManager = $this->bunnyStreamManagerFactory->getVideoManager((string) $library->id());
+    // The Bunny video of a pending upload is created when a new media is saved.
+    if ($id === BunnyStreamSourceInterface::PENDING_UPLOAD) {
+      if (!$library?->isUploadAllowed()) {
+        $this->context->addViolation($constraint->uploadNotAllowedMessage);
+      }
+      elseif (!$media->isNew()) {
+        $this->context->addViolation($constraint->pendingUploadNotAllowedMessage);
+      }
+      return;
+    }
+
+    /** @var \Drupal\bunny_stream\Bunny\VideoManager|null $videoManager */
+    $videoManager = $this->bunnyStreamManagerFactory->getVideoManager((string) $library?->id());
 
     try {
       if (is_null($videoManager?->getVideo($id))) {
         $this->context->addViolation($constraint->invalidIdMessage);
       }
     }
-    catch (\Exception $exception) {
+    catch (BunnyException) {
       $this->context->addViolation($constraint->invalidIdMessage);
     }
 

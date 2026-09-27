@@ -13,14 +13,14 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 /**
  * Requirements for bunny_stream.
  */
-final class BunnyStreamRequirements {
+final class BunnyStreamLibraryHooks {
+
+  use StringTranslationTrait;
 
   /**
    * Path of the TUS client library.
    */
   public const string TUS_LIBRARY_PATH = 'libraries/tus-js-client/dist/tus.min.js';
-
-  use StringTranslationTrait;
 
   public function __construct(
     private readonly LibraryDiscoveryInterface $libraryDiscovery,
@@ -75,7 +75,7 @@ final class BunnyStreamRequirements {
     $requirement['severity'] = RequirementSeverity::OK;
     if (
       !$installed ||
-      version_compare($installed, (string)((int) $expected + 1), '>=') ||
+      version_compare($installed, (string) ((int) $expected + 1), '>=') ||
       version_compare($installed, $expected, '<')
     ) {
       $requirement['severity'] = RequirementSeverity::Warning;

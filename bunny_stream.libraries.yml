@@ -7,3 +7,14 @@ tus-js-client:
     gpl-compatible: true
   js:
     /libraries/tus-js-client/dist/tus.min.js: { minified: true }
+
+upload:
+  js:
+    js/bunny-stream-upload.js: {}
+  css:
+    component:
+      css/bunny-stream-upload.css: {}
+  dependencies:
+    - core/drupal
+    - core/once
+    - bunny_stream/tus-js-client

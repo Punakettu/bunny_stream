@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Drupal\Tests\bunny_stream\Kernel;
+namespace Drupal\Tests\bunny_stream\Kernel\Controller;
 
-use Drupal\bunny_stream\BunnyStreamLibraryInterface;
+use Drupal\bunny_stream\Bunny\DTO\VideoStates;
+use Drupal\bunny_stream\Bunny\DTO\Webhook;
 use Drupal\bunny_stream\Controller\WebhookController;
 use Drupal\bunny_stream\Entity\BunnyStreamLibrary;
 use Drupal\bunny_stream\Event\WebhookEvent;
@@ -28,7 +29,7 @@ final class WebhookControllerTest extends KernelTestBase {
   use HttpKernelTestTrait;
 
   /**
-   * Test library id
+   * Test library id.
    */
   private const int LIBRARY_ID = 12345;
 
@@ -45,16 +46,15 @@ final class WebhookControllerTest extends KernelTestBase {
   private array $events = [];
 
   /**
-   * Library entity.
-   */
-  private BunnyStreamLibraryInterface $library;
-
-  /**
    * {@inheritdoc}
    */
   protected static $modules = [
     'bunny_stream',
+    'field',
+    'file',
+    'image',
     'media',
+    'user',
   ];
 
   /**
@@ -89,10 +89,27 @@ final class WebhookControllerTest extends KernelTestBase {
     ]);
 
     $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
-    $this->assertSame([self::payload()], array_map(
+    $this->assertEquals([
+      new Webhook(self::LIBRARY_ID, 'b4a4c1e0-5f3d-4c6e-9f8b-1a2b3c4d5e6f', VideoStates::Finished),
+    ], array_map(
       static fn (WebhookEvent $event) => $event->getPayload(),
       $this->events
     ));
+  }
+
+  /**
+   * A signed request with a malformed payload is rejected.
+   */
+  public function testMalformedPayload(): void {
+    $payload = ['Status' => 999] + self::payload();
+    $response = $this->post('bunny_stream.webhook', $payload, [
+      'X-BunnyStream-Signature' => self::sign($payload, self::READ_ONLY_API_KEY),
+      'X-BunnyStream-Signature-Version' => 'v1',
+      'X-BunnyStream-Signature-Algorithm' => 'hmac-sha256',
+    ]);
+
+    $this->assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+    $this->assertEmpty($this->events);
   }
 
   /**

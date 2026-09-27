@@ -4,13 +4,24 @@
  * Template to render iframe for bunny stream embebed video.
  *
  * Available variables:
- * - url: The URL of the video, with all the options.
+ * - url: The URL of the video, with all the options. Empty while the embed
+ *   is loaded separately.
+ * - title: The accessible title of the video iframe.
+ * - width: The width of the video in pixels, if known.
+ * - height: The height of the video in pixels, if known. The embed keeps the
+ *   aspect ratio of the video, or 16:9 if the size is not known.
  * - options: Array with different configuration options.
  *   - allowfullscreen: boolean to allow full screen on the video.
+ * - attributes: HTML attributes for the wrapper.
 #}
-<div style="position: relative; padding-top: 56.25%;">
-  <iframe src="{{ url }}"
+{% set aspect_ratio = width and height ? width ~ ' / ' ~ height : '16 / 9' %}
+<div{{ attributes.addClass('bunny-embed') }} style="position: relative; aspect-ratio: {{ aspect_ratio }};">
+  {% if url %}
+  <iframe src="{{ url }}"{% if title %} title="{{ title }}"{% endif %}
           loading="lazy" style="border: none; position: absolute; top: 0; height: 100%; width: 100%;"
           allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" {% if options.allow_fullscreen %}allowfullscreen="true"{% endif %}>
   </iframe>
+  {% else %}
+  <span style="position: absolute; inset: 0; display: grid; place-items: center;">{{ 'Loading video…'|t }}</span>
+  {% endif %}
 </div>

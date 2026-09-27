@@ -2,9 +2,12 @@
 
 namespace Drupal\bunny_stream\Plugin\media\Source;
 
+use Drupal\bunny_stream\Bunny\BunnyException;
+use Drupal\bunny_stream\Bunny\DTO\BunnyVideo;
 use Drupal\bunny_stream\BunnyStreamLibraryInterface;
 use Drupal\bunny_stream\BunnyStreamManagerFactoryInterface;
 use Drupal\bunny_stream\BunnyStreamSourceInterface;
+use Drupal\bunny_stream\Plugin\Field\FieldType\BunnyStreamVideoItem;
 use Drupal\Component\Render\PlainTextOutput;
 use Drupal\Component\Utility\Crypt;
 use Drupal\Core\Config\ConfigFactoryInterface;
@@ -29,7 +32,7 @@ use Drupal\media\MediaSourceBase;
 use Drupal\media\MediaSourceFieldConstraintsInterface;
 use Drupal\media\MediaTypeInterface;
 use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Exception\TransferException;
+use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Mime\MimeTypes;
@@ -41,12 +44,10 @@ use Symfony\Component\Mime\MimeTypes;
   id: 'bunny_stream',
   label: new TranslatableMarkup('Bunny Stream'),
   description: new TranslatableMarkup('Use Bunny Stream for reusable media.'),
-  allowed_field_types: ['string'],
+  allowed_field_types: ['bunny_stream_video'],
   default_thumbnail_filename: 'bunny.png',
 )]
 class BunnyStreamSource extends MediaSourceBase implements BunnyStreamSourceInterface, MediaSourceFieldConstraintsInterface {
-
-  protected const string DEFAULT_THUMBNAIL = 'public://bunny_stream_thumbnails/bunny-thumbnail.png';
 
   use MessengerTrait;
   use LoggerChannelTrait;
@@ -107,7 +108,7 @@ class BunnyStreamSource extends MediaSourceBase implements BunnyStreamSourceInte
   /**
    * {@inheritdoc}
    */
-  public function getMetadataAttributes() {
+  public function getMetadataAttributes(): array {
     return [
       "videoLibraryId" => $this->t('Video library ID'),
       "guid" => $this->t('Video UUID'),
@@ -117,7 +118,7 @@ class BunnyStreamSource extends MediaSourceBase implements BunnyStreamSourceInte
       "isPublic" => $this->t('Public'),
       "length" => $this->t('Length'),
       "status" => $this->t('Status'),
-      "framerate" => $this->t('Framewrate'),
+      "framerate" => $this->t('Framerate'),
       "rotation" => $this->t('Rotation'),
       "width" => $this->t('Width'),
       "height" => $this->t('Height'),
@@ -146,15 +147,15 @@ class BunnyStreamSource extends MediaSourceBase implements BunnyStreamSourceInte
 
     $video_id = $this->getSourceFieldValue($media);
     // The URL may be NULL if the source field is empty, in which case just
-    // return NULL.
-    if (empty($video_id)) {
+    // return NULL. A pending upload has no Bunny video yet.
+    if (empty($video_id) || $video_id === self::PENDING_UPLOAD) {
       return NULL;
     }
 
     try {
-      /** @var \Drupal\bunny_stream\VideoManager $videoManager */
+      /** @var \Drupal\bunny_stream\Bunny\VideoManager $videoManager */
       $videoManager = $this->bunnyFactory->getVideoManager($this->getConfiguration()['library']);
-      /** @var \Drupal\bunny_stream\BunnyVideo|null $video */
+      /** @var \Drupal\bunny_stream\Bunny\DTO\BunnyVideo|null $video */
       $video = $videoManager->getVideo($video_id);
 
       if (is_null($video)) {
@@ -184,9 +185,15 @@ class BunnyStreamSource extends MediaSourceBase implements BunnyStreamSourceInte
 
       case 'thumbnail_uri':
 
-        $library = $this->getLibrary();
+        $hostname = (string) $this->getLibrary()?->get('cdn_hostname');
+        if ($hostname === '') {
+          return NULL;
+        }
+        if (!preg_match('#^https?://#', $hostname)) {
+          $hostname = 'https://' . $hostname;
+        }
 
-        $thumbnail_uri = $library?->get('cdn_hostname') . '/' . $video_id . '/thumbnail.jpg';
+        $thumbnail_uri = rtrim($hostname, '/') . '/' . $video_id . '/' . (!empty($video->thumbnailFileName) ? $video->thumbnailFileName : 'thumbnail.jpg');
         return $this->getLocalThumbnailUri($thumbnail_uri);
 
       case 'videoLibraryId':
@@ -277,7 +284,7 @@ class BunnyStreamSource extends MediaSourceBase implements BunnyStreamSourceInte
   /**
    * {@inheritdoc}
    */
-  public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
+  public function buildConfigurationForm(array $form, FormStateInterface $form_state): array {
     $form = parent::buildConfigurationForm($form, $form_state);
 
     $configs = $this->entityTypeManager->getStorage('bunny_stream_library')->loadMultiple();
@@ -358,7 +365,7 @@ class BunnyStreamSource extends MediaSourceBase implements BunnyStreamSourceInte
   /**
    * {@inheritdoc}
    */
-  public function getSourceFieldConstraints() {
+  public function getSourceFieldConstraints(): array {
     return [
       'bunny_stream' => [],
     ];
@@ -367,7 +374,7 @@ class BunnyStreamSource extends MediaSourceBase implements BunnyStreamSourceInte
   /**
    * {@inheritdoc}
    */
-  public function defaultConfiguration() {
+  public function defaultConfiguration(): array {
     return parent::defaultConfiguration() + [
       'thumbnails_directory' => 'public://bunny_stream_thumbnails/[date:custom:Y-m]',
       'library' => '',
@@ -411,6 +418,42 @@ class BunnyStreamSource extends MediaSourceBase implements BunnyStreamSourceInte
   }
 
   /**
+   * Fetches the video metadata from Bunny and stores it in the source field.
+   *
+   * The metadata is cleared if the video cannot be loaded, so it never
+   * describes another video.
+   *
+   * @param \Drupal\media\MediaInterface $media
+   *   The media. It is not saved.
+   * @param \Drupal\bunny_stream\Bunny\DTO\BunnyVideo|null $video
+   *   The video, if it has already been loaded.
+   */
+  public function updateVideoMetadata(MediaInterface $media, ?BunnyVideo $video = NULL): void {
+    $item = $media->get($this->getConfiguration()['source_field'])->first();
+    if (!$item instanceof BunnyStreamVideoItem || $item->isEmpty() || $item->value === self::PENDING_UPLOAD) {
+      return;
+    }
+
+    try {
+      $video ??= $this->bunnyFactory->getVideoManager($this->getConfiguration()['library'])?->getVideo((string) $item->value);
+    }
+    catch (BunnyException $e) {
+      $this->getLogger('bunny_stream')->warning('Could not load the metadata of Bunny video @id: @message', [
+        '@id' => $item->value,
+        '@message' => $e->getMessage(),
+      ]);
+    }
+
+    if ($video) {
+      $item->setVideoMetadata($video);
+    }
+    else {
+      $item->set('width', NULL);
+      $item->set('height', NULL);
+    }
+  }
+
+  /**
    * Loads the library from the current configuration.
    *
    * @return \Drupal\bunny_stream\BunnyStreamLibraryInterface|null
@@ -438,7 +481,9 @@ class BunnyStreamSource extends MediaSourceBase implements BunnyStreamSourceInte
    *
    * @return string|null
    *   The local thumbnail URI, or NULL if it could not be downloaded, or if the
-   *   resource has no thumbnail at all.
+   *   resource has no thumbnail at all. Media then uses the default icon.
+   *
+   * @see \Drupal\Drupal\media\Plugin\media\Source\OEmbed::getLocalThumbnailUri
    */
   protected function getLocalThumbnailUri(string $remote_thumbnail_url) {
 
@@ -467,7 +512,7 @@ class BunnyStreamSource extends MediaSourceBase implements BunnyStreamSourceInte
     $hash = Crypt::hashBase64($remote_thumbnail_url);
     $files = $this->fileSystem->scanDirectory($directory, "/^$hash\..*/");
     if (count($files) > 0) {
-      return reset($files)->uri;
+      return array_first($files)->uri;
     }
 
     // The local thumbnail doesn't exist yet, so we need to download it.
@@ -483,17 +528,17 @@ class BunnyStreamSource extends MediaSourceBase implements BunnyStreamSourceInte
         return $local_thumbnail_uri;
       }
     }
-    catch (TransferException $e) {
+    catch (ClientExceptionInterface $e) {
       $this->getLogger('bunny_stream')->warning('Failed to download remote thumbnail file due to "%error".', [
         '%error' => $e->getMessage(),
       ]);
-      return self::DEFAULT_THUMBNAIL;
+      return NULL;
     }
     catch (FileException $e) {
       $this->getLogger('bunny_stream')->warning('Could not download remote thumbnail from {url}.', [
         'url' => $remote_thumbnail_url,
       ]);
-      return self::DEFAULT_THUMBNAIL;
+      return NULL;
     }
     return NULL;
   }
@@ -508,6 +553,8 @@ class BunnyStreamSource extends MediaSourceBase implements BunnyStreamSourceInte
    *
    * @return string|null
    *   The file extension, or NULL if it could not be determined.
+   *
+   * @see \Drupal\Drupal\media\Plugin\media\Source\OEmbed::getThumbnailFileExtensionFromUrl
    */
   protected function getThumbnailFileExtensionFromUrl(string $thumbnail_url, ResponseInterface $response): ?string {
     // First, try to glean the extension from the URL path.

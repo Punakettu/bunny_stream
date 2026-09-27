@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Drupal\Tests\bunny_stream\Kernel;
+namespace Drupal\Tests\bunny_stream\Kernel\Form;
 
 use Drupal\bunny_stream\BunnyStreamLibraryInterface;
 use Drupal\bunny_stream\Form\BunnyStreamLibraryForm;
@@ -38,27 +38,64 @@ final class BunnyStreamLibraryFormTest extends KernelTestBase {
    * A valid submission saves the library.
    */
   public function testSubmit(): void {
-    $this->mockHttpClient(new Response(200, [], '{"items": []}'));
+    $this->mockHttpClient(new Response(200, [], '{"items": []}'), new Response(200, [], '{"items": []}'));
 
     $form_state = $this->submitForm(self::values());
 
     $this->assertSame([], $form_state->getErrors());
 
-    $request = $this->getLastHttpRequest();
-    $this->assertSame('11111111-1111-4111-8111-111111111111', $request->getHeaderLine('AccessKey'));
+    // Both keys are checked.
+    $this->assertSame(
+      ['44444444-4444-4444-8444-444444444444', '11111111-1111-4111-8111-111111111111'],
+      array_map(fn ($request) => $request->getHeaderLine('AccessKey'), $this->getHttpRequests()),
+    );
 
     $library = $this->container->get(EntityTypeManagerInterface::class)
       ->getStorage('bunny_stream_library')
       ->loadUnchanged('12345');
     $this->assertInstanceOf(BunnyStreamLibraryInterface::class, $library);
-    $this->assertSame(self::values(), array_intersect_key($library->toArray(), self::values()));
+    $expected = ['allow_upload' => TRUE] + self::values();
+    $actual = array_intersect_key($library->toArray(), $expected);
+    ksort($expected);
+    ksort($actual);
+    $this->assertSame($expected, $actual);
+  }
+
+  /**
+   * A library without uploads needs and stores only the read-only key.
+   */
+  public function testSubmitWithoutUploads(): void {
+    $this->mockHttpClient(new Response(200, [], '{"items": []}'));
+
+    $form_state = $this->submitForm(['allow_upload' => NULL] + self::values());
+    $this->assertSame([], $form_state->getErrors());
+
+    $this->assertSame(['44444444-4444-4444-8444-444444444444'], array_map(fn ($request) => $request->getHeaderLine('AccessKey'), $this->getHttpRequests()));
+
+    $library = $this->container->get(EntityTypeManagerInterface::class)
+      ->getStorage('bunny_stream_library')
+      ->loadUnchanged('12345');
+    $this->assertInstanceOf(BunnyStreamLibraryInterface::class, $library);
+    $this->assertFalse($library->get('allow_upload'));
+    $this->assertNull($library->get('api_key'));
+    $this->assertFalse($library->isUploadAllowed());
+  }
+
+  /**
+   * Uploads require the read/write key.
+   */
+  public function testSubmitUploadsWithoutApiKey(): void {
+    $this->mockHttpClient(new Response(200, [], '{"items": []}'));
+
+    $form_state = $this->submitForm(['api_key' => ''] + self::values());
+    $this->assertArrayHasKey('api_key', $form_state->getErrors());
   }
 
   /**
    * Rejected credentials fail validation and nothing is saved.
    */
   public function testSubmitInvalidCredentials(): void {
-    $this->mockHttpClient(new Response(401));
+    $this->mockHttpClient(new Response(401), new Response(401));
 
     $form_state = $this->submitForm(self::values());
     $this->assertNotEmpty($form_state->getErrors());
@@ -71,7 +108,7 @@ final class BunnyStreamLibraryFormTest extends KernelTestBase {
   /**
    * Submits the add form programmatically.
    *
-   * @param array<string, string> $values
+   * @param array<string, string|int|null> $values
    *   The submitted values.
    */
   private function submitForm(array $values): FormStateInterface {
@@ -90,13 +127,15 @@ final class BunnyStreamLibraryFormTest extends KernelTestBase {
   /**
    * Valid values for library.
    *
-   * @phpstan-return array<string, string>
+   * @phpstan-return array<string, string|int>
    */
   private static function values(): array {
     return [
       'id' => '12345',
       'label' => 'Test library',
       'description' => 'Library description',
+      'read_only_api_key' => '44444444-4444-4444-8444-444444444444',
+      'allow_upload' => 1,
       'api_key' => '11111111-1111-4111-8111-111111111111',
       'cdn_hostname' => 'vz-12345.b-cdn.net',
       'pull_zone' => 'vz-12345',

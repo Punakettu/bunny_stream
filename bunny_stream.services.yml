@@ -4,4 +4,7 @@ services:
   bunny_stream.manager:
     class: Drupal\bunny_stream\BunnyStreamManagerFactory
   Drupal\bunny_stream\BunnyStreamManagerFactoryInterface: '@bunny_stream.manager'
-  Drupal\bunny_stream\LazyEmbedLoader: ~
+  Drupal\bunny_stream\EmbedUrlGenerator: ~
+  Drupal\bunny_stream\EventSubscriber\WebhookMediaSyncSubscriber:
+    tags:
+      - { name: event_subscriber }
