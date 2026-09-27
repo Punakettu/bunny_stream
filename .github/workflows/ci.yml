@@ -1,0 +1,102 @@
+name: CI
+
+on:
+  push:
+    branches: ['[0-9]+.x', '[0-9]+.[0-9]+.x']
+  pull_request:
+  workflow_dispatch:
+
+# Cancel superseded runs on the same branch/PR.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  PHP_EXTENSIONS: gd, intl, mbstring, pdo_sqlite, zip
+
+  # The module is checked out inside a throwaway Drupal project.
+  MODULE_PATH: web/modules/custom/bunny_stream
+
+jobs:
+  static-analysis:
+    name: Coding style
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: ${{ env.PHP_EXTENSIONS }}
+          coverage: none
+          tools: composer:v2, cs2pr
+
+      - name: Create Drupal project
+        run: composer create-project drupal/recommended-project:^11 . --no-install --no-interaction
+
+      - uses: actions/checkout@v7
+        with:
+          path: ${{ env.MODULE_PATH }}
+
+      - name: Install Composer dependencies
+        run: |
+          composer config allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
+          composer config allow-plugins.phpstan/extension-installer true
+          composer require --dev -W --no-interaction --no-progress \
+            drupal/core-dev:^11 \
+            phpstan/extension-installer \
+            phpstan/phpstan-deprecation-rules
+
+      - name: Run phpcs
+        shell: bash
+        run: vendor/bin/phpcs --standard=$MODULE_PATH/phpcs.xml.dist --no-cache -q --report=checkstyle $MODULE_PATH | cs2pr
+
+      - name: Run phpstan
+        # Report phpstan findings even when phpcs already failed.
+        if: success() || failure()
+        run: vendor/bin/phpstan analyse -c $MODULE_PATH/phpstan.neon.dist --no-progress --memory-limit=1G --error-format=github
+
+  phpunit:
+    name: PHPUnit (Drupal ${{ matrix.drupal }}, PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Lowest supported, see core_version_requirement in the info file.
+          - drupal: '~11.2.0'
+            php: '8.3'
+          - drupal: '^11'
+            php: '8.5'
+    env:
+      SIMPLETEST_DB: sqlite://localhost/${{ github.workspace }}/test.sqlite
+      SIMPLETEST_BASE_URL: http://localhost
+    steps:
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: ${{ env.PHP_EXTENSIONS }}
+          coverage: none
+          tools: composer:v2
+          ini-values: memory_limit=-1, error_reporting=E_ALL, display_errors=On
+
+      - name: Create Drupal project
+        run: composer create-project drupal/recommended-project:${{ matrix.drupal }} . --no-install --no-interaction
+
+      - uses: actions/checkout@v7
+        with:
+          path: ${{ env.MODULE_PATH }}
+
+      - name: Install Composer dependencies
+        run: |
+          composer config allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
+          composer config allow-plugins.phpstan/extension-installer true
+          composer require --dev -W --no-interaction --no-progress drupal/core-dev:${{ matrix.drupal }}
+
+      # Functional suites need a web server in front of web/; add one when the
+      # first Functional test is written.
+      - name: Run phpunit
+        run: vendor/bin/phpunit -c web/core $MODULE_PATH
