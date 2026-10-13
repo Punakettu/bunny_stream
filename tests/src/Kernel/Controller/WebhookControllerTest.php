@@ -152,6 +152,14 @@ final class WebhookControllerTest extends KernelTestBase {
           'X-BunnyStream-Signature-Algorithm' => 'hmac-sha256',
         ],
       ],
+      'unknown library' => [
+        self::payload(99999),
+        [
+          'X-BunnyStream-Signature' => self::sign(self::payload(99999), self::READ_ONLY_API_KEY),
+          'X-BunnyStream-Signature-Version' => 'v1',
+          'X-BunnyStream-Signature-Algorithm' => 'hmac-sha256',
+        ],
+      ],
       'library without API key' => [
         self::payload(23456),
         [
