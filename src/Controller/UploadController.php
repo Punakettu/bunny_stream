@@ -36,7 +36,7 @@ final class UploadController extends ControllerBase {
   public function access(MediaInterface $media): AccessResultInterface {
     $source = $media->getSource();
     $library = $source instanceof BunnyStreamSource ? $source->getLibrary() : NULL;
-    $result = AccessResult::allowedIf($library?->isUploadAllowed())
+    $result = AccessResult::allowedIf($library?->isUploadAllowed() === TRUE)
       ->addCacheableDependency($media)
       ->addCacheableDependency($media->getBundleEntity());
 

@@ -44,7 +44,7 @@ class WebhookController extends ControllerBase {
 
     assert(!$library || $library instanceof BunnyStreamLibraryInterface);
 
-    return AccessResult::allowedIf($library?->validateSignature($signature, $version, $algorithm, $request->getContent()))
+    return AccessResult::allowedIf($library?->validateSignature($signature, $version, $algorithm, $request->getContent()) === TRUE)
       ->setCacheMaxAge(0);
   }
 

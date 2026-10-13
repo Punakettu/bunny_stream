@@ -48,6 +48,7 @@ final class UploadControllerTest extends KernelTestBase {
     'file',
     'image',
     'media',
+    'media_test_source',
     'system',
     'user',
   ];
@@ -125,6 +126,22 @@ final class UploadControllerTest extends KernelTestBase {
 
     $this->assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
     $this->assertSame(Response::HTTP_FORBIDDEN, $this->get('entity.media.bunny_stream_upload', ['media' => $this->media->id()])->getStatusCode());
+  }
+
+  /**
+   * The upload page is denied for media from other sources.
+   */
+  public function testOtherSource(): void {
+    $this->setUpCurrentUser(permissions: ['update any media']);
+    $media_type = $this->createMediaType('test');
+    $media = Media::create([
+      'bundle' => $media_type->id(),
+      'name' => 'Not a video',
+      $media_type->getSource()->getSourceFieldDefinition($media_type)->getName() => 'foo',
+    ]);
+    $media->save();
+
+    $this->assertSame(Response::HTTP_FORBIDDEN, $this->get('entity.media.bunny_stream_upload', ['media' => $media->id()])->getStatusCode());
   }
 
   /**
